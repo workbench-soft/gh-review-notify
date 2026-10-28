@@ -1,0 +1,15 @@
+name: shellcheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # The repo is private, so this job runs on the Mac for 0 minutes.
+  shellcheck:
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v4
+      - run: command -v shellcheck || brew install shellcheck
+      - run: shellcheck -S style gh-review-notify install.sh uninstall.sh
