@@ -1,0 +1,105 @@
+== first run, logged out
+gh: not logged in
+gh is not logged in: run gh auth login
+exit 1
+-- gh calls
+api user --jq .login
+-- notifications
+== first run
+Seeded 3 past events. Only new ones will pop up.
+exit 0
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/4 --jq .requested_reviewers[].login
+api --paginate repos/acme/api/pulls/1/reviews?per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/reviews?per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/5/reviews?per_page=100
+api --paginate repos/acme/api/issues/5/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/5/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/3/reviews?per_page=100
+api --paginate repos/acme/web/issues/3/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/3/comments?since=2026-10-26T12:00:00Z&per_page=100
+-- notifications
+== second run
+exit 0
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api --paginate repos/acme/api/pulls/1/reviews?per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/reviews?per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/reviews?per_page=100
+api --paginate repos/acme/web/issues/6/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/comments?since=2026-10-26T12:00:00Z&per_page=100
+-- notifications
+-title 👀 Review requested · web#6
+-subtitle ivy · ivy's PR · 10:00
+-message Fix footer
+-open https://github.com/acme/web/pull/6
+-group https://github.com/acme/web/pull/6
+-sound Glass
+
+-title ✅ Approved · api#1
+-subtitle alice · your PR · 10:15
+-message LGTM
+-open https://github.com/acme/api/pull/1#pullrequestreview-2
+-group https://github.com/acme/api/pull/1#pullrequestreview-2
+-sound Glass
+
+-title ⛔️ Changes requested · api#2
+-subtitle frank · erin's PR · 10:40
+-message Needs tests
+-open https://github.com/acme/api/pull/2#pullrequestreview-21
+-group https://github.com/acme/api/pull/2#pullrequestreview-21
+-sound Glass
+
+-title 💬 Comment · api#1
+-subtitle carol · your PR · Oct 28, 18:04
+-message Looks good ship it now
+-open https://github.com/acme/api/pull/1#issuecomment-11
+-group https://github.com/acme/api/pull/1#issuecomment-11
+-sound Glass
+
+-title 💬 Comment · api#1
+-subtitle dave · your PR · 10:20
+-message src/users.ts: Rename this
+-open https://github.com/acme/api/pull/1#discussion_r13
+-group https://github.com/acme/api/pull/1#discussion_r13
+-sound Glass
+
+-title 💬 6 new comments · api#2
+-subtitle frank, grace · erin's PR · 10:59
+-message src/search.ts: Use a Map here
+-open https://github.com/acme/api/pull/2
+-group https://github.com/acme/api/pull/2
+-sound Glass
+
+== --test
+Sent a test notification. Nothing on screen means macOS is blocking it:
+System Settings > Notifications > terminal-notifier > Allow notifications.
+exit 0
+-- gh calls
+-- notifications
+-title gh-review-notify
+-subtitle 12:00
+-message Notifications are working
+-open https://github.com/notifications
+-group https://github.com/notifications
+-sound Glass
+

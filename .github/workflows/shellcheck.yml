@@ -1,0 +1,22 @@
+name: shellcheck
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Steps run in bash. On Windows the default would be PowerShell.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # A private repo pays for GitHub runners, so the job runs on the Windows PC runner.
+  shellcheck:
+    runs-on: [self-hosted, local]
+    steps:
+      - uses: actions/checkout@v4
+      - run: command -v shellcheck || winget.exe install --id koalaman.shellcheck --exact --silent --accept-source-agreements --accept-package-agreements
+      - run: shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/*
+      - run: command -v jq || winget.exe install --id jqlang.jq --exact --silent --accept-source-agreements --accept-package-agreements
+      - run: bash tests/run.sh

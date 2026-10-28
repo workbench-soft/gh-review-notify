@@ -1,0 +1,22 @@
+[
+  {
+    "html_url": "https://github.com/acme/api/pull/1#issuecomment-11",
+    "created_at": "2026-10-28T18:04:00Z",
+    "path": "",
+    "body": "Looks good\r\nship it\tnow",
+    "user": {
+      "login": "carol",
+      "type": "User"
+    }
+  },
+  {
+    "html_url": "https://github.com/acme/api/pull/1#issuecomment-12",
+    "created_at": "2026-10-29T10:30:00Z",
+    "path": "",
+    "body": "Thanks",
+    "user": {
+      "login": "me",
+      "type": "User"
+    }
+  }
+]

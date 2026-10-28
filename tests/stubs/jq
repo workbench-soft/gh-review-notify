@@ -1,0 +1,4 @@
+#!/bin/bash
+# Calls the real jq and drops the carriage returns jq adds on Windows.
+set -o pipefail
+"$REAL_JQ" "$@" | tr -d '\r'

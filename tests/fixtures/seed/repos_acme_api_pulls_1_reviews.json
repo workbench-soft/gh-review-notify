@@ -1,0 +1,12 @@
+[
+  {
+    "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-1",
+    "state": "COMMENTED",
+    "submitted_at": "2026-10-28T08:00:00Z",
+    "body": "First look",
+    "user": {
+      "login": "alice",
+      "type": "User"
+    }
+  }
+]

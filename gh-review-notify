@@ -1,0 +1,300 @@
+#!/bin/bash
+# Shows a macOS notification for each review and comment another person leaves
+# on a pull request you opened, joined or were asked to review.
+# macOS runs this with bash 3.2: no associative arrays, no mapfile.
+set -uo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+export GH_PAGER=cat
+
+lookback_days=${GH_REVIEW_NOTIFY_DAYS:-3}
+show_bots=${GH_REVIEW_NOTIFY_BOTS:-0}
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/gh-review-notify"
+seen_file="$cache_dir/seen.txt"
+updated_cache="$cache_dir/pr-updated.tsv"
+requests_cache="$cache_dir/review-requests.tsv"
+lock_dir="$cache_dir/lock"
+
+main() {
+  case "${1:-}" in
+    --test) send_test_notification; exit 0 ;;
+    --status) print_status; exit 0 ;;
+  esac
+
+  command -v gh > /dev/null || { echo "gh is not installed" >&2; exit 1; }
+  command -v jq > /dev/null || { echo "jq is not installed" >&2; exit 1; }
+
+  mkdir -p "$cache_dir"
+  take_lock || exit 0
+  work_dir=$(mktemp -d)
+  seeding=0
+  finished=0
+  trap clean_up EXIT
+  if [ ! -f "$seen_file" ]; then
+    seeding=1
+    : > "$seen_file"
+  fi
+
+  events_file="$work_dir/events.tsv"
+  : > "$events_file"
+  touch "$updated_cache" "$requests_cache"
+
+  my_login=$(gh api user --jq .login) || { echo "gh is not logged in: run gh auth login" >&2; exit 1; }
+  since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
+  since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
+
+  list_involved_prs
+  collect_review_requests
+  collect_pr_events
+  keep_unseen_events
+  [ "$seeding" = 0 ] && deliver_notifications
+
+  tail -n 3000 "$seen_file" > "$seen_file.trim" && mv "$seen_file.trim" "$seen_file"
+  [ "$seeding" = 1 ] && echo "Seeded $(wc -l < "$seen_file" | tr -d ' ') past events. Only new ones will pop up."
+  finished=1
+  exit 0
+}
+
+send_test_notification() {
+  show_notification "gh-review-notify" "$(date +%H:%M)" "Notifications are working" "https://github.com/notifications"
+  echo "Sent a test notification. Nothing on screen means macOS is blocking it:"
+  echo "System Settings > Notifications > terminal-notifier > Allow notifications."
+}
+
+print_status() {
+  local agent
+  agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" { print "running, last exit code " $2 }')
+  echo "agent:    ${agent:-not loaded, run install.sh}"
+  echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
+  echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
+  echo "seen:     $( (wc -l < "$seen_file" 2> /dev/null || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
+  echo "log:      $HOME/Library/Logs/gh-review-notify.log"
+}
+
+# A manual run and the agent take turns, so the same comment can't pop up twice.
+# A lock left by a crashed run expires after 15 minutes.
+take_lock() {
+  find "$lock_dir" -maxdepth 0 -mmin +15 -exec rmdir {} \; 2> /dev/null
+  mkdir "$lock_dir" 2> /dev/null
+}
+
+# A first run that stops early removes seen.txt, so the next run seeds again
+# and the past days don't pop up as new.
+# shellcheck disable=SC2329 # the EXIT trap calls it.
+clean_up() {
+  [ "$seeding" = 1 ] && [ "$finished" = 0 ] && rm -f "$seen_file"
+  rm -rf "$work_dir" "$lock_dir"
+}
+
+# Writes url, title, updatedAt and author for each open PR you are part of.
+list_involved_prs() {
+  {
+    search_open_prs --author @me
+    search_open_prs --involves @me
+    search_open_prs --reviewed-by @me
+  } 2> /dev/null |
+    jq -rs 'add | unique_by(.url) | .[] | [.url, .title, .updatedAt, .author.login] | @tsv' > "$work_dir/involved.tsv"
+}
+
+search_open_prs() {
+  gh search prs "$@" --state open --updated ">=$since_date" --limit 100 --json url,title,updatedAt,author
+}
+
+# GitHub search also lists a review asked of a team you belong to. Each hit is
+# checked for your own login, and the answer holds until the PR changes again.
+collect_review_requests() {
+  local url title author updated scope
+  gh search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq \
+    '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" 2> /dev/null
+
+  : > "$work_dir/asked-me.tsv"
+  : > "$work_dir/request-scopes.tsv"
+  while IFS=$'\t' read -r url title author updated; do
+    scope=""
+    [ "$(cached_value "$requests_cache" "$url" 2)" = "$updated" ] && scope=$(cached_value "$requests_cache" "$url" 3)
+    if [ -z "$scope" ]; then
+      if asked_me_by_name "$url"; then scope=personal; else scope=team; fi
+    fi
+    printf '%s\t%s\t%s\n' "$url" "$updated" "$scope" >> "$work_dir/request-scopes.tsv"
+    [ "$scope" = "personal" ] || continue
+
+    printf '%s\t%s\t%s\t%s\n' "$url" "$title" "$updated" "$author" >> "$work_dir/asked-me.tsv"
+    parse_pr_url "$url"
+    printf '%s#review-requested\trequest\t%s\t%s\t%s\t%s\t%s\n' \
+      "$url" "$updated" "$author" "$pr_ref" "$author" "$title" >> "$events_file"
+  done < "$work_dir/request-hits.tsv"
+  mv "$work_dir/request-scopes.tsv" "$requests_cache"
+}
+
+asked_me_by_name() { # PR url
+  parse_pr_url "$1"
+  gh api "repos/$pr_repo/pulls/$pr_number" --jq '.requested_reviewers[].login' 2> /dev/null |
+    grep -qxF "$my_login"
+}
+
+# Reads the reviews and comments of each PR whose updatedAt moved since the last run.
+collect_pr_events() {
+  local url title updated pr_author fetched
+  sort -t$'\t' -k1,1 -u "$work_dir/involved.tsv" "$work_dir/asked-me.tsv" > "$work_dir/watched.tsv"
+
+  : > "$work_dir/next-updated.tsv"
+  while IFS=$'\t' read -r url title updated pr_author; do
+    if [ "$(cached_value "$updated_cache" "$url" 2)" = "$updated" ]; then
+      printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
+      continue
+    fi
+
+    parse_pr_url "$url"
+    fetched=1
+    gh api --paginate "repos/$pr_repo/pulls/$pr_number/reviews?per_page=100" > "$work_dir/reviews.json" 2> /dev/null || fetched=0
+    gh api --paginate "repos/$pr_repo/issues/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/conversation.json" 2> /dev/null || fetched=0
+    gh api --paginate "repos/$pr_repo/pulls/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/diff.json" 2> /dev/null || fetched=0
+    pr_event_rows "$title" "$pr_author" >> "$events_file"
+
+    # After a failed call the PR stays out of the cache, so the next run reads it again.
+    [ "$fetched" = 1 ] && printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
+  done < "$work_dir/watched.tsv"
+  mv "$work_dir/next-updated.tsv" "$updated_cache"
+}
+
+# Prints a row per review or comment by another person:
+# key, kind, time, actor, PR, PR author, text.
+pr_event_rows() { # title, PR author
+  local args=(--arg me "$my_login" --arg since "$since_time" --arg pr "$pr_ref" --arg title "$1" --arg author "$2" --arg bots "$show_bots")
+  # shellcheck disable=SC2016 # jq expands these, not bash.
+  local by_others='def by_others: select(.user.login != $me) | select($bots == "1" or .user.type != "Bot");'
+
+  # An empty COMMENTED review only wraps inline comments, and those come one by one below.
+  jq -r "${args[@]}" "$by_others"'
+    .[]
+    | by_others
+    | select(.submitted_at > $since)
+    | select(.state != "COMMENTED" or (.body // "") != "")
+    | [ .html_url,
+        (if .state == "APPROVED" then "approved"
+         elif .state == "CHANGES_REQUESTED" then "changes"
+         else "review" end),
+        .submitted_at,
+        .user.login,
+        $pr,
+        $author,
+        (if (.body // "") == "" then $title else .body[0:150] end) ]
+    | @tsv' "$work_dir/reviews.json" 2> /dev/null
+
+  jq -r "${args[@]}" "$by_others"'
+    .[]
+    | by_others
+    | [.html_url, "comment", .created_at, .user.login, $pr, $author, .body[0:150]]
+    | @tsv' "$work_dir/conversation.json" 2> /dev/null
+
+  jq -r "${args[@]}" "$by_others"'
+    .[]
+    | by_others
+    | [.html_url, "comment", .created_at, .user.login, $pr, $author, (.path // "") + ": " + .body[0:120]]
+    | @tsv' "$work_dir/diff.json" 2> /dev/null
+}
+
+# Copies events whose key is not in seen.txt to fresh.tsv, and adds the keys to seen.txt.
+keep_unseen_events() {
+  : > "$work_dir/fresh.tsv"
+  awk -F'\t' -v seen="$seen_file" -v fresh="$work_dir/fresh.tsv" '
+    FILENAME == seen { known[$0]; next }
+    $1 == "" || $1 in known { next }
+    { known[$1]; print $1 >> seen; print > fresh }
+  ' "$seen_file" "$events_file"
+}
+
+deliver_notifications() {
+  local count url rows last who
+  # An approval or a change request comes on its own, so a pile of comments can't hide it.
+  awk -F'\t' '$2 != "comment"' "$work_dir/fresh.tsv" > "$work_dir/alone.tsv"
+  awk -F'\t' '$2 == "comment"' "$work_dir/fresh.tsv" > "$work_dir/comments.tsv"
+  notify_each "$work_dir/alone.tsv"
+
+  # A reviewer who leaves 10 inline comments at once gets 1 notification.
+  awk -F'\t' '{ split($1, a, "#"); print a[1] }' "$work_dir/comments.tsv" | sort | uniq -c |
+    while read -r count url; do
+      rows="$work_dir/pr-comments.tsv"
+      awk -F'\t' -v u="$url#" 'index($1, u) == 1' "$work_dir/comments.tsv" > "$rows"
+      if [ "$count" -le 4 ]; then
+        notify_each "$rows"
+        continue
+      fi
+      last=$(sort -t$'\t' -k3,3 "$rows" | tail -1)
+      who=$(cut -f4 "$rows" | sort -u | paste -sd "," - | sed 's/,/, /g')
+      show_notification "💬 $count new comments · $(cut -f5 <<< "$last")" \
+        "$(subtitle_for "$who" "$(cut -f6 <<< "$last")" "$(cut -f3 <<< "$last")")" \
+        "$(one_line "$(cut -f7 <<< "$last")")" "$url"
+    done
+}
+
+notify_each() { # rows file
+  local key kind when actor pr pr_author text
+  while IFS=$'\t' read -r key kind when actor pr pr_author text; do
+    show_notification "$(kind_label "$kind") · $pr" "$(subtitle_for "$actor" "$pr_author" "$when")" \
+      "$(one_line "$text")" "${key%#review-requested}"
+  done < "$1"
+}
+
+# jq @tsv writes a line break or a tab as \n, \r or \t. Each one turns into a space.
+one_line() { # text from a TSV row
+  local text=$1
+  text=${text//\\r\\n/ }
+  text=${text//\\n/ }
+  text=${text//\\r/ }
+  printf '%s' "${text//\\t/ }"
+}
+
+show_notification() { # title, subtitle, message, url
+  if command -v terminal-notifier > /dev/null; then
+    terminal-notifier -title "$1" -subtitle "$2" -message "$3" -open "$4" -group "$4" -sound Glass > /dev/null 2>&1
+  else
+    osascript -e "display notification \"${3//\"/ }\" with title \"${1//\"/ }\" subtitle \"${2//\"/ }\"" > /dev/null 2>&1
+  fi
+}
+
+kind_label() { # event kind
+  case "$1" in
+    approved) echo "✅ Approved" ;;
+    changes) echo "⛔️ Changes requested" ;;
+    request) echo "👀 Review requested" ;;
+    review) echo "📝 Review" ;;
+    *) echo "💬 Comment" ;;
+  esac
+}
+
+# "alice · your PR · 14:32": who acted, whose PR it is, and when.
+subtitle_for() { # who, PR author, ISO 8601 UTC time
+  local whose time
+  case "$2" in
+    "") whose="" ;;
+    "$my_login") whose="your PR" ;;
+    *) whose="$2's PR" ;;
+  esac
+  time=$(short_time "$3")
+  printf '%s%s%s' "$1" "${whose:+ · $whose}" "${time:+ · $time}"
+}
+
+# Local time for today, with the date in front for an older day.
+short_time() { # ISO 8601 UTC time
+  local epoch
+  epoch=$(date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "$1" +%s 2> /dev/null) || return 0
+  if [ "$(date -r "$epoch" +%F)" = "$(date +%F)" ]; then
+    date -r "$epoch" +%H:%M
+  else
+    date -r "$epoch" '+%b %-d, %H:%M'
+  fi
+}
+
+# Sets pr_repo (owner/name), pr_number and pr_ref (name#number).
+parse_pr_url() { # PR url
+  local path=${1#https://github.com/}
+  pr_repo=${path%/pull/*}
+  pr_number=${path##*/}
+  pr_ref="${pr_repo#*/}#$pr_number"
+}
+
+cached_value() { # file, url, column
+  awk -F'\t' -v u="$2" -v c="$3" '$1 == u { print $c; exit }' "$1"
+}
+
+main "$@"

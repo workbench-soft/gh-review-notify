@@ -1,0 +1,52 @@
+[
+  {
+    "html_url": "https://github.com/acme/api/pull/2#discussion_r21",
+    "created_at": "2026-10-29T10:51:00Z",
+    "path": "src/search.ts",
+    "body": "Point 1",
+    "user": {
+      "login": "frank",
+      "type": "User"
+    }
+  },
+  {
+    "html_url": "https://github.com/acme/api/pull/2#discussion_r22",
+    "created_at": "2026-10-29T10:52:00Z",
+    "path": "src/search.ts",
+    "body": "Point 2",
+    "user": {
+      "login": "frank",
+      "type": "User"
+    }
+  },
+  {
+    "html_url": "https://github.com/acme/api/pull/2#discussion_r23",
+    "created_at": "2026-10-29T10:53:00Z",
+    "path": "src/search.ts",
+    "body": "Point 3",
+    "user": {
+      "login": "frank",
+      "type": "User"
+    }
+  },
+  {
+    "html_url": "https://github.com/acme/api/pull/2#discussion_r24",
+    "created_at": "2026-10-29T10:54:00Z",
+    "path": "src/search.ts",
+    "body": "Point 4",
+    "user": {
+      "login": "frank",
+      "type": "User"
+    }
+  },
+  {
+    "html_url": "https://github.com/acme/api/pull/2#discussion_r29",
+    "created_at": "2026-10-29T10:59:00Z",
+    "path": "src/search.ts",
+    "body": "Use a Map\nhere",
+    "user": {
+      "login": "frank",
+      "type": "User"
+    }
+  }
+]

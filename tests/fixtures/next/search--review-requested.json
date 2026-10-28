@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://github.com/acme/web/pull/3",
+    "title": "New header",
+    "updatedAt": "2026-10-28T08:00:00Z",
+    "author": {
+      "login": "gail"
+    }
+  },
+  {
+    "url": "https://github.com/acme/web/pull/4",
+    "title": "Team only",
+    "updatedAt": "2026-10-28T08:00:00Z",
+    "author": {
+      "login": "hank"
+    }
+  },
+  {
+    "url": "https://github.com/acme/web/pull/6",
+    "title": "Fix footer",
+    "updatedAt": "2026-10-29T10:00:00Z",
+    "author": {
+      "login": "ivy"
+    }
+  }
+]
