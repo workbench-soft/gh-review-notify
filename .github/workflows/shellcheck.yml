@@ -5,11 +5,16 @@ on:
     branches: [main]
   pull_request:
 
+# Windows runs steps in PowerShell unless told otherwise.
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  # The repo is private, so this job runs on the Mac for 0 minutes.
+  # The repo is private, so this job runs on the dev machine for 0 minutes, Mac or Windows.
   shellcheck:
-    runs-on: [self-hosted, macOS]
+    runs-on: [self-hosted, local]
     steps:
       - uses: actions/checkout@v4
-      - run: command -v shellcheck || brew install shellcheck
+      - run: command -v shellcheck || brew install shellcheck || winget.exe install --id koalaman.shellcheck --exact --silent --accept-source-agreements --accept-package-agreements
       - run: shellcheck -S style gh-review-notify install.sh uninstall.sh
