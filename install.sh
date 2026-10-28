@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-repo_raw=${GH_REVIEW_NOTIFY_SRC:-https://raw.githubusercontent.com/oleg-chibikov/gh-review-notify/main}
+# The repo is private, so the files come through the GitHub API with the gh login.
+repo=workbench-soft/gh-review-notify
+src=${GH_REVIEW_NOTIFY_SRC:-}
 label=io.github.gh-review-notify
 interval=${GH_REVIEW_NOTIFY_INTERVAL:-180}
 days=${GH_REVIEW_NOTIFY_DAYS:-3}
@@ -39,8 +41,10 @@ mkdir -p "$bin_dir"
 here=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2> /dev/null && pwd || echo .)
 if [ -f "$here/gh-review-notify" ]; then
   cp "$here/gh-review-notify" "$script"
+elif [ -n "$src" ]; then
+  curl -fsSL "$src/gh-review-notify" -o "$script"
 else
-  curl -fsSL "$repo_raw/gh-review-notify" -o "$script"
+  gh api -H 'Accept: application/vnd.github.raw' "repos/$repo/contents/gh-review-notify" > "$script"
 fi
 chmod +x "$script"
 

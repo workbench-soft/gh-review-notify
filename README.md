@@ -59,10 +59,12 @@ notifications. What it has shown lives in `~/.cache/gh-review-notify/seen.txt`.
 
 ## Install
 
-macOS, with [GitHub CLI](https://cli.github.com) installed and logged in.
+macOS, with [GitHub CLI](https://cli.github.com) installed and logged in. The
+repo is private in the `workbench-soft` org, so `gh` fetches the files with your
+login.
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oleg-chibikov/gh-review-notify/main/install.sh)"
+/bin/bash -c "$(gh api -H 'Accept: application/vnd.github.raw' repos/workbench-soft/gh-review-notify/contents/install.sh)"
 ```
 
 It installs `jq` and `terminal-notifier` through Homebrew if they are missing,
@@ -72,7 +74,7 @@ every login.
 To read the code first:
 
 ```sh
-git clone https://github.com/oleg-chibikov/gh-review-notify.git
+gh repo clone workbench-soft/gh-review-notify
 cd gh-review-notify && ./install.sh
 ```
 
@@ -96,7 +98,7 @@ and a few API calls out of the 5000 you get an hour.
 ## Uninstall
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/oleg-chibikov/gh-review-notify/main/uninstall.sh | bash
+gh api -H 'Accept: application/vnd.github.raw' repos/workbench-soft/gh-review-notify/contents/uninstall.sh | bash
 ```
 
 ## When nothing arrives
