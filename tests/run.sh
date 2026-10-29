@@ -17,7 +17,7 @@ export STUBS="$tests/stubs"
 export XDG_CACHE_HOME="$work/cache"
 export GH_CALLS="$work/calls.txt"
 export NOTIFICATIONS="$work/notifications.txt"
-export NOW=1793275200 # 2026-10-29T12:00:00Z
+export NOW=1761739200 # 2025-10-29T12:00:00Z
 unset GH_REVIEW_NOTIFY_DAYS GH_REVIEW_NOTIFY_BOTS
 
 run() { # fixture set, arguments

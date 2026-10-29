@@ -10,43 +10,43 @@ Seeded 3 past events. Only new ones will pop up.
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
 api repos/acme/web/pulls/4 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
-api --paginate repos/acme/api/issues/1/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/2/reviews?per_page=100
-api --paginate repos/acme/api/issues/2/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/5/reviews?per_page=100
-api --paginate repos/acme/api/issues/5/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/5/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/5/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/5/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/web/pulls/3/reviews?per_page=100
-api --paginate repos/acme/web/issues/3/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/web/pulls/3/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/issues/3/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/3/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 == second run
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
-api --paginate repos/acme/api/issues/1/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/2/reviews?per_page=100
-api --paginate repos/acme/api/issues/2/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/web/pulls/6/reviews?per_page=100
-api --paginate repos/acme/web/issues/6/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/web/pulls/6/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/issues/6/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 -title 👀 Review requested · web#6
 -subtitle ivy · ivy's PR · 10:00
@@ -107,20 +107,20 @@ exit 0
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2026-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
-api --paginate repos/acme/api/issues/1/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/1/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/2/reviews?per_page=100
-api --paginate repos/acme/api/issues/2/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/api/pulls/2/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/web/pulls/6/reviews?per_page=100
-api --paginate repos/acme/web/issues/6/comments?since=2026-10-26T12:00:00Z&per_page=100
-api --paginate repos/acme/web/pulls/6/comments?since=2026-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/issues/6/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 display notification "Fix footer" with title "👀 Review requested · web#6" subtitle "ivy · ivy's PR · 10:00"
 display notification "LGTM" with title "✅ Approved · api#1" subtitle "alice · your PR · 10:15"
