@@ -8,5 +8,5 @@
 ## reset-history
 
 - [ ] Each other clone, the Mac included: run `git fetch` then `git reset --hard origin/main`. A push from an old clone brings the history back.
-- [ ] Delete the backup bundle once the new history has settled: `~/repo-backups/gh-review-notify-20261029-085602.bundle` on the Windows PC.
+- [ ] Delete the backup bundle once the new history has settled: `~/repo-backups/gh-review-notify-20251029-085602.bundle` on the Windows PC.
 - [ ] GitHub keeps `refs/pull/1/head` and `refs/pull/2/head` on old commits, and the PR pages still show them. Only GitHub Support can remove them.

@@ -2,7 +2,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-1",
     "state": "COMMENTED",
-    "submitted_at": "2026-10-28T08:00:00Z",
+    "submitted_at": "2025-10-28T08:00:00Z",
     "body": "First look",
     "user": {
       "login": "alice",
@@ -12,7 +12,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-2",
     "state": "APPROVED",
-    "submitted_at": "2026-10-29T10:15:00Z",
+    "submitted_at": "2025-10-29T10:15:00Z",
     "body": "LGTM",
     "user": {
       "login": "alice",
@@ -22,7 +22,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-3",
     "state": "COMMENTED",
-    "submitted_at": "2026-10-29T10:16:00Z",
+    "submitted_at": "2025-10-29T10:16:00Z",
     "body": "",
     "user": {
       "login": "bob",
@@ -32,7 +32,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-4",
     "state": "APPROVED",
-    "submitted_at": "2026-10-29T10:17:00Z",
+    "submitted_at": "2025-10-29T10:17:00Z",
     "body": "Self",
     "user": {
       "login": "me",
@@ -42,7 +42,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-5",
     "state": "COMMENTED",
-    "submitted_at": "2026-10-29T10:18:00Z",
+    "submitted_at": "2025-10-29T10:18:00Z",
     "body": "Nit",
     "user": {
       "login": "coderabbit[bot]",
@@ -52,7 +52,7 @@
   {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-6",
     "state": "APPROVED",
-    "submitted_at": "2026-10-20T10:00:00Z",
+    "submitted_at": "2025-10-20T10:00:00Z",
     "body": "Stale",
     "user": {
       "login": "zed",
