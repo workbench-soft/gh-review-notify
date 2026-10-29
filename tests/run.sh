@@ -37,10 +37,20 @@ run() { # fixture set, arguments
   run logged-out
   echo "== first run"
   run seed
+  cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"
   echo "== second run"
   run next
   echo "== --test"
   run next --test
+
+  # Without terminal-notifier the script falls back to osascript.
+  mkdir "$work/osascript-stubs"
+  cp "$STUBS"/* "$work/osascript-stubs/"
+  rm "$work/osascript-stubs/terminal-notifier"
+  rm -rf "$XDG_CACHE_HOME"
+  cp -R "$work/seeded-cache" "$XDG_CACHE_HOME"
+  echo "== second run, osascript"
+  STUBS="$work/osascript-stubs" run next
 } > "$work/actual.txt" 2>&1
 
 if [ "${1:-}" = "--update" ]; then
