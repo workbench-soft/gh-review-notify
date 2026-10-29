@@ -3,7 +3,9 @@ name: shellcheck
 on:
   push:
     branches: [main]
-  pull_request:
+  # PR runs are off: agents run the tests and linter locally before they merge.
+  # To run this on PRs again, uncomment the pull_request lines below.
+  # pull_request:
 
 # A newer push to the same branch or PR cancels the run still going.
 concurrency:
