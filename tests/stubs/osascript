@@ -1,0 +1,6 @@
+#!/bin/bash
+# Stands in for osascript and writes each script it gets to $NOTIFICATIONS.
+while [ $# -gt 1 ]; do
+  [ "$1" = -e ] && printf '%s\n' "$2" >> "$NOTIFICATIONS"
+  shift 2
+done
