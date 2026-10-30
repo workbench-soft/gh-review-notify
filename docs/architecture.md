@@ -26,11 +26,14 @@ flowchart LR
 
 1. **Lock** `take_lock` makes `lock/`. A second run quits at once.
 2. **List PRs** `list_involved_prs` searches open PRs you authored, take part
-   in or reviewed, updated in the last 3 days.
+   in or reviewed, updated in the last 3 days. A failed search stops the run
+   before any cache file changes.
 3. **Review requests** `collect_review_requests` keeps the requests that name
-   you, and drops the team ones.
+   you, and drops the team ones. A failed lookup stays out of the cache, so
+   the next run asks again.
 4. **Read events** `collect_pr_events` reads reviews and comments of each PR
-   whose `updatedAt` moved.
+   whose `updatedAt` moved. A comment counts when it was written in the last
+   3 days, whatever its last edit.
 5. **Drop seen events** `keep_unseen_events` checks each event key against
    `seen.txt`.
 6. **Notify** `deliver_notifications` shows approvals alone and folds more

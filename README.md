@@ -85,7 +85,8 @@ The install ends with a test notification. If it doesn't show, switch on
 
 ## Settings
 
-The installer reads these and writes them into the agent:
+The installer checks these and writes them into the agent. A value it can't
+use stops the install with a message:
 
 ```sh
 GH_REVIEW_NOTIFY_INTERVAL=60 ./install.sh   # poll every 60 seconds, default 180
@@ -96,6 +97,8 @@ GH_REVIEW_NOTIFY_BOTS=1 ./install.sh        # bot comments too, default off
 The first run reads each pull request you take part in, and it takes a minute.
 Later runs open only the PRs whose `updatedAt` moved. A run then takes under 10
 seconds and a few API calls out of the 5000 GitHub gives you an hour.
+
+Run the install again to update. A failed download keeps the script you have.
 
 ## Uninstall
 
@@ -111,6 +114,10 @@ gh-review-notify --test     # checks the macOS side only
 tail ~/Library/Logs/gh-review-notify.log
 ```
 
+"Could not read your GitHub login" in the log means the Mac was offline or
+`gh` lost its login. "GitHub search failed" means a search hit an error or the
+rate limit, and the next run tries again.
+
 A user agent runs while you are logged in, and it sleeps with the Mac. On wake
 it runs once and catches up.
 
@@ -118,8 +125,8 @@ It works with github.com only. Enterprise hosts are out.
 
 ## Development
 
-`tests/run.sh` runs the script twice against canned GitHub answers in
-`tests/fixtures`. Stubs stand in for `gh`, the macOS `date` and
+`tests/run.sh` runs the script against canned GitHub answers in
+`tests/fixtures`, and feeds `install.sh` bad settings. Stubs stand in for `gh`, the macOS `date` and
 `terminal-notifier`, so it runs on Windows too. It needs `jq`.
 
 ```sh
