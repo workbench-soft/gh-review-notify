@@ -185,15 +185,18 @@ pr_event_rows() { # title, PR author
         (if (.body // "") == "" then $title else .body[0:150] | one_line end) ]
     | @tsv' "$work_dir/reviews.json" 2> /dev/null
 
+  # GitHub's since= keeps comments edited after that time, old ones too.
   jq -r "${args[@]}" "$by_others"'
     .[]
     | by_others
+    | select(.created_at > $since)
     | [.html_url, "comment", .created_at, .user.login, $pr, $author, ((.body // "")[0:150] | one_line)]
     | @tsv' "$work_dir/conversation.json" 2> /dev/null
 
   jq -r "${args[@]}" "$by_others"'
     .[]
     | by_others
+    | select(.created_at > $since)
     | [.html_url, "comment", .created_at, .user.login, $pr, $author, (.path // "") + ": " + ((.body // "")[0:120] | one_line)]
     | @tsv' "$work_dir/diff.json" 2> /dev/null
 }
