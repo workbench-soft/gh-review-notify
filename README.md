@@ -115,8 +115,8 @@ tail ~/Library/Logs/gh-review-notify.log
 ```
 
 "Could not read your GitHub login" in the log means the Mac was offline or
-`gh` lost its login. "GitHub search failed" means a search hit an error or the
-rate limit, and the next run tries again.
+`gh` lost its login. "A GitHub call failed" means a call hit an error or the rate
+limit, and the next run tries again.
 
 A user agent runs while you are logged in, and it sleeps with the Mac. On wake
 it runs once and catches up.

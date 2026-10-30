@@ -7,12 +7,36 @@ api user --jq .login
 -- notifications
 == first run, a search fails
 HTTP 403: API rate limit exceeded
-GitHub search failed. The next run tries again.
+A GitHub call failed. The next run tries again.
 exit 1
 -- gh calls
 api user --jq .login
 search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+-- notifications
+== first run, a reviewer lookup fails
+A GitHub call failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
+-- notifications
+== first run, a review list fails
+A GitHub call failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api --paginate repos/acme/api/pulls/1/reviews?per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 == first run
 Seeded 3 past events. Only new ones will pop up.

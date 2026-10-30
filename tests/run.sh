@@ -38,6 +38,10 @@ run() { # fixture set, arguments
   run logged-out
   echo "== first run, a search fails"
   run search-fails
+  echo "== first run, a reviewer lookup fails"
+  run lookup-fails
+  echo "== first run, a review list fails"
+  run fetch-fails
   echo "== first run"
   run seed
   cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"

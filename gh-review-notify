@@ -43,12 +43,11 @@ main() {
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
   # A failed search would read as "no PRs" and wipe the caches. On the first run
-  # it would also seed nothing, so the next run would show 3 days of old events.
-  if ! list_involved_prs || ! collect_review_requests; then
-    echo "GitHub search failed. The next run tries again." >&2
+  # any failed call would leave events unseen, and the next run would show them.
+  if ! list_involved_prs || ! collect_review_requests || ! collect_pr_events; then
+    echo "A GitHub call failed. The next run tries again." >&2
     exit 1
   fi
-  collect_pr_events
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
 
@@ -118,7 +117,8 @@ collect_review_requests() {
     scope=""
     [ "$(cached_value "$requests_cache" "$url" 2)" = "$updated" ] && scope=$(cached_value "$requests_cache" "$url" 3)
     # A failed lookup leaves the PR out of the cache, so the next run asks again.
-    [ -n "$scope" ] || scope=$(request_scope "$url") || continue
+    # The first run stops instead, since it can't record the PR's events.
+    [ -n "$scope" ] || scope=$(request_scope "$url") || { [ "$seeding" = 0 ] || return 1; continue; }
     printf '%s\t%s\t%s\n' "$url" "$updated" "$scope" >> "$work_dir/request-scopes.tsv"
     [ "$scope" = "personal" ] || continue
 
@@ -158,6 +158,8 @@ collect_pr_events() {
     pr_event_rows "$(from_tsv "$title")" "$pr_author" >> "$events_file"
 
     # After a failed call the PR stays out of the cache, so the next run reads it again.
+    # The first run stops instead, since the next run would show the events it missed.
+    [ "$fetched" = 1 ] || [ "$seeding" = 0 ] || return 1
     [ "$fetched" = 1 ] && printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
   done < "$work_dir/watched.tsv"
   mv "$work_dir/next-updated.tsv" "$updated_cache"
