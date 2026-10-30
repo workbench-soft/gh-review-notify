@@ -42,8 +42,12 @@ main() {
   since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
-  list_involved_prs
-  collect_review_requests
+  # A failed search would read as "no PRs" and wipe the caches. On the first run
+  # it would also seed nothing, so the next run would show 3 days of old events.
+  if ! list_involved_prs || ! collect_review_requests; then
+    echo "GitHub search failed. The next run tries again." >&2
+    exit 1
+  fi
   collect_pr_events
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
@@ -87,12 +91,12 @@ clean_up() {
 
 # Writes url, title, updatedAt and author for each open PR you are part of.
 list_involved_prs() {
-  {
-    search_open_prs --author @me
-    search_open_prs --involves @me
-    search_open_prs --reviewed-by @me
-  } 2> /dev/null |
-    jq -rs 'add | unique_by(.url) | .[] | [.url, .title, .updatedAt, .author.login] | @tsv' > "$work_dir/involved.tsv"
+  local role
+  : > "$work_dir/found.json"
+  for role in --author --involves --reviewed-by; do
+    search_open_prs "$role" @me >> "$work_dir/found.json" || return 1
+  done
+  jq -rs 'add | unique_by(.url) | .[] | [.url, .title, .updatedAt, .author.login] | @tsv'     "$work_dir/found.json" > "$work_dir/involved.tsv"
 }
 
 search_open_prs() {
@@ -104,7 +108,7 @@ search_open_prs() {
 collect_review_requests() {
   local url title author updated scope
   gh search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq \
-    '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" 2> /dev/null
+    '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" || return 1
 
   : > "$work_dir/asked-me.tsv"
   : > "$work_dir/request-scopes.tsv"

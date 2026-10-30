@@ -35,6 +35,8 @@ run() { # fixture set, arguments
 {
   echo "== first run, logged out"
   run logged-out
+  echo "== first run, a search fails"
+  run search-fails
   echo "== first run"
   run seed
   cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"

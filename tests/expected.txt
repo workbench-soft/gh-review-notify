@@ -5,6 +5,15 @@ exit 1
 -- gh calls
 api user --jq .login
 -- notifications
+== first run, a search fails
+HTTP 403: API rate limit exceeded
+GitHub search failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+-- notifications
 == first run
 Seeded 3 past events. Only new ones will pop up.
 exit 0
