@@ -7,8 +7,14 @@ filter=""
 words=()
 while [ $# -gt 0 ]; do
   case "$1" in
-    --jq) filter=$2; shift 2 ;;
-    *) words+=("$1"); shift ;;
+    --jq)
+      filter=$2
+      shift 2
+      ;;
+    *)
+      words+=("$1")
+      shift
+      ;;
   esac
 done
 

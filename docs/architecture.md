@@ -58,12 +58,12 @@ sequenceDiagram
 
 The script keeps its state in `~/.cache/gh-review-notify`:
 
-| File | Holds |
-| --- | --- |
-| `seen.txt` | the key of each event already shown, the last 3000 |
-| `pr-updated.tsv` | PR url and the `updatedAt` read last time |
-| `review-requests.tsv` | PR url, `updatedAt`, and `personal` or `team` |
-| `lock/` | present while a run is going |
+| File                  | Holds                                              |
+| --------------------- | -------------------------------------------------- |
+| `seen.txt`            | the key of each event already shown, the last 3000 |
+| `pr-updated.tsv`      | PR url and the `updatedAt` read last time          |
+| `review-requests.tsv` | PR url, `updatedAt`, and `personal` or `team`      |
+| `lock/`               | present while a run is going                       |
 
 An event key is the GitHub URL of the review or comment. A review request uses
 the PR URL plus `#review-requested`.

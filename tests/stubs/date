@@ -6,15 +6,31 @@ format="%a %b %d %H:%M:%S UTC %Y"
 while [ $# -gt 0 ]; do
   case "$1" in
     -u | -j) shift ;;
-    -v-*d) days=${1#-v-}; epoch=$((epoch - ${days%d} * 86400)); shift ;;
-    -f) epoch=$(jq -n --arg t "$3" '$t | fromdate') || exit 1; shift 3 ;;
-    -r) epoch=$2; shift 2 ;;
-    +*) format=${1#+}; shift ;;
+    -v-*d)
+      days=${1#-v-}
+      epoch=$((epoch - ${days%d} * 86400))
+      shift
+      ;;
+    -f)
+      epoch=$(jq -n --arg t "$3" '$t | fromdate') || exit 1
+      shift 3
+      ;;
+    -r)
+      epoch=$2
+      shift 2
+      ;;
+    +*)
+      format=${1#+}
+      shift
+      ;;
     *) exit 1 ;;
   esac
 done
 
-[ "$format" = "%s" ] && { echo "$epoch"; exit 0; }
+[ "$format" = "%s" ] && {
+  echo "$epoch"
+  exit 0
+}
 
 day=$(jq -rn --argjson e "$epoch" '$e | strftime("%d")')
 format=${format//%-d/${day#0}}

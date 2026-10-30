@@ -1,0 +1,20 @@
+[tools]
+node = "24"
+"npm:oxfmt" = "0.75.0"
+shellcheck = "0.11.0"
+shfmt = "3.14.1"
+
+[tasks.lint]
+description = "Lint and format check the scripts and the Markdown"
+run = [
+  "shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
+  "shfmt -i 2 -ci -sr -d gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
+  "oxfmt --check",
+]
+
+[tasks.format]
+description = "Format the scripts and the Markdown"
+run = [
+  "shfmt -i 2 -ci -sr -w gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
+  "oxfmt",
+]
