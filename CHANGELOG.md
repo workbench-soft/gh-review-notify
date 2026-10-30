@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Install settings** `install.sh` stops on a bad interval, days or bots value and says what it takes. Before, the value went into the agent and broke it.
 - **Update** a failed download during `install.sh` keeps the installed script. Before, the running agent got an empty or half written script.
 - **PR titles** a backslash in a PR title shows once on an approval with no text. Before, it showed twice.
 - **Edited comments** an old comment edited today stays silent. Before, it popped up as new with its old date.

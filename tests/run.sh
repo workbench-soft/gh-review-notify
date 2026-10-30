@@ -55,6 +55,12 @@ run() { # fixture set, arguments
   cp -R "$work/seeded-cache" "$XDG_CACHE_HOME"
   echo "== second run, osascript"
   STUBS="$work/osascript-stubs" run next
+
+  # An empty PATH stops install.sh at its macOS check if a bad value gets past.
+  for setting in GH_REVIEW_NOTIFY_INTERVAL=3m GH_REVIEW_NOTIFY_DAYS=0 GH_REVIEW_NOTIFY_BOTS=yes; do
+    echo "== install.sh, $setting"
+    env -i HOME="$work/home" PATH=/nonexistent "$setting" "$BASH" "$tests/../install.sh" || echo "exit $?"
+  done
 } > "$work/actual.txt" 2>&1
 
 if [ "${1:-}" = "--update" ]; then

@@ -17,6 +17,18 @@ log_file="$HOME/Library/Logs/gh-review-notify.log"
 
 fail() { echo "$1" >&2; exit 1; }
 
+# The values go into the agent plist as they are, and a bad one breaks the agent.
+check_settings() {
+  whole_number "$poll_seconds" || fail "GH_REVIEW_NOTIFY_INTERVAL takes whole seconds, such as 180."
+  whole_number "$lookback_days" || fail "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3."
+  case "$show_bots" in 0 | 1) ;; *) fail "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
+}
+
+whole_number() { # value
+  case "$1" in '' | *[!0-9]*) return 1 ;; esac
+  [ "$1" -gt 0 ]
+}
+
 check_requirements() {
   [ "$(uname)" = "Darwin" ] || fail "macOS only."
   command -v gh > /dev/null || fail "Install the GitHub CLI first: brew install gh"
@@ -110,6 +122,7 @@ System Settings > Notifications > terminal-notifier, then run:
 TEXT
 }
 
+check_settings
 check_requirements
 brew_install_missing jq
 brew_install_missing terminal-notifier
