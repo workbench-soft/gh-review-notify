@@ -7,9 +7,10 @@ tests=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# The script pins PATH to the Homebrew folders. The copy puts the stubs first.
+# The script pins PATH to the Homebrew folders. The copy uses the stubs and the
+# system folders only, so a real gh or terminal-notifier on the Mac stays out.
 # shellcheck disable=SC2016
-sed 's|^export PATH=.*|export PATH="$STUBS:$PATH"|' "$tests/../gh-review-notify" > "$work/gh-review-notify"
+sed 's|^export PATH=.*|export PATH="$STUBS:/usr/bin:/bin"|' "$tests/../gh-review-notify" > "$work/gh-review-notify"
 
 export REAL_JQ
 REAL_JQ=$(command -v jq)
