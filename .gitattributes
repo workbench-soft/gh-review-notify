@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# The release scripts run in sh, which fails on CRLF ends.
+*.sh text eol=lf
