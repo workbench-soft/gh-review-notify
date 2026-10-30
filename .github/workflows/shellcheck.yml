@@ -27,7 +27,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - run: command -v shellcheck || brew install shellcheck
-      - run: shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/*
+      # mise.toml pins shellcheck, shfmt and oxfmt.
+      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
+      - run: mise run lint
       - run: command -v jq || brew install jq
       - run: bash tests/run.sh

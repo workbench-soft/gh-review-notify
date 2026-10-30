@@ -15,7 +15,10 @@ installed_script="$bin_dir/gh-review-notify"
 agent_plist="$HOME/Library/LaunchAgents/$agent_label.plist"
 log_file="$HOME/Library/Logs/gh-review-notify.log"
 
-fail() { echo "$1" >&2; exit 1; }
+fail() {
+  echo "$1" >&2
+  exit 1
+}
 
 # The values go into the agent plist as they are, and a bad one breaks the agent.
 check_settings() {

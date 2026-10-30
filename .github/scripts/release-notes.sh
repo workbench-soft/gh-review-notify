@@ -6,7 +6,7 @@ set -eu
 
 tag=$1
 ref=${2:-HEAD}
-previous=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' "$ref^" 2>/dev/null || true)
+previous=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' "$ref^" 2> /dev/null || true)
 range=${previous:+$previous..}$ref
 
 commits() {
