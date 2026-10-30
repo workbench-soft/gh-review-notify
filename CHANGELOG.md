@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Update** a failed download during `install.sh` keeps the installed script. Before, the running agent got an empty or half written script.
 - **PR titles** a backslash in a PR title shows once on an approval with no text. Before, it showed twice.
 - **Edited comments** an old comment edited today stays silent. Before, it popped up as new with its old date.
 - **Review requests** a failed reviewer lookup is asked again on the next run. Before, the request counted as a team request and stayed silent.

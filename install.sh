@@ -40,18 +40,22 @@ register_notifier_app() {
 }
 
 # Takes the script from the clone beside this file, from GH_REVIEW_NOTIFY_SRC, or from GitHub.
+# The agent of an earlier install can start at any moment, so the new script
+# replaces the old one in a single rename, and a failed download leaves it be.
 copy_script() {
-  local clone_dir
+  local clone_dir new_script="$installed_script.new"
   mkdir -p "$bin_dir"
   clone_dir=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2> /dev/null && pwd || echo .)
   if [ -f "$clone_dir/gh-review-notify" ]; then
-    cp "$clone_dir/gh-review-notify" "$installed_script"
+    cp "$clone_dir/gh-review-notify" "$new_script"
   elif [ -n "$source_url" ]; then
-    curl -fsSL "$source_url/gh-review-notify" -o "$installed_script"
+    curl -fsSL "$source_url/gh-review-notify" -o "$new_script"
   else
-    gh api -H 'Accept: application/vnd.github.raw' "repos/$github_repo/contents/gh-review-notify" > "$installed_script"
+    gh api -H 'Accept: application/vnd.github.raw' "repos/$github_repo/contents/gh-review-notify" > "$new_script"
   fi
-  chmod +x "$installed_script"
+  head -n 1 "$new_script" | grep -qx '#!/bin/bash' || fail "The download of gh-review-notify is not the script. Try again."
+  chmod +x "$new_script"
+  mv "$new_script" "$installed_script"
 }
 
 write_agent_plist() {
