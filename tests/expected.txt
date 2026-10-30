@@ -1,6 +1,6 @@
 == first run, logged out
 gh: not logged in
-gh is not logged in: run gh auth login
+Could not read your GitHub login. Check the network, or run gh auth login.
 exit 1
 -- gh calls
 api user --jq .login

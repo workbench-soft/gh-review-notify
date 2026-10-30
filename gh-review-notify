@@ -38,7 +38,7 @@ main() {
   : > "$events_file"
   touch "$updated_cache" "$requests_cache"
 
-  my_login=$(gh api user --jq .login) || { echo "gh is not logged in: run gh auth login" >&2; exit 1; }
+  my_login=$(gh api user --jq .login) || { echo "Could not read your GitHub login. Check the network, or run gh auth login." >&2; exit 1; }
   since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
