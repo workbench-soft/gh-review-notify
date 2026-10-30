@@ -41,3 +41,9 @@ Comments by bot accounts stay silent.
 - **`--status`** prints the agent state, the account, the last run, the
   settings and the log path.
 - **`--test`** sends a test notification.
+
+## Releases
+
+- **What it gives** a tagged release such as `v2026.10.30.1` for each push to `main` that passes `shellcheck`. Its notes list the commits since the release before.
+- **Where** the [Releases page](https://github.com/workbench-soft/gh-review-notify/releases).
+- **Limits** notes only, with no files to download.

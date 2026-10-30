@@ -134,7 +134,10 @@ bash tests/run.sh            # compares with tests/expected.txt
 bash tests/run.sh --update   # rewrites tests/expected.txt after a change you meant
 ```
 
-CI runs both on a GitHub macOS runner.
+CI runs both on a GitHub macOS runner. Each push to `main` that passes them gets
+a release such as `v2026.10.30.1` on the [Releases page](https://github.com/workbench-soft/gh-review-notify/releases).
+Its notes list the commits since the release before.
+The install still fetches the latest `main`.
 
 ## Licence
 
