@@ -30,6 +30,11 @@ case "${words[0]} ${words[1]}" in
 esac
 
 answer="$FIXTURES/$file"
+# A fixture named <file>.fail holds the error gh prints, and the call fails.
+if [ -n "$file" ] && [ -f "$answer.fail" ]; then
+  cat "$answer.fail" >&2
+  exit 1
+fi
 if [ "$file" = user.json ] && [ ! -f "$answer" ]; then
   echo "gh: not logged in" >&2
   exit 1

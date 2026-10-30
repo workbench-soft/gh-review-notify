@@ -1,5 +1,15 @@
 [
   {
+    "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-7",
+    "state": "APPROVED",
+    "submitted_at": "2025-10-29T10:25:00Z",
+    "body": "",
+    "user": {
+      "login": "kim",
+      "type": "User"
+    }
+  },
+  {
     "html_url": "https://github.com/acme/api/pull/1#pullrequestreview-1",
     "state": "COMMENTED",
     "submitted_at": "2025-10-28T08:00:00Z",

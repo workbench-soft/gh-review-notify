@@ -1,9 +1,42 @@
 == first run, logged out
 gh: not logged in
-gh is not logged in: run gh auth login
+Could not read your GitHub login. Check the network, or run gh auth login.
 exit 1
 -- gh calls
 api user --jq .login
+-- notifications
+== first run, a search fails
+HTTP 403: API rate limit exceeded
+A GitHub call failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+-- notifications
+== first run, a reviewer lookup fails
+A GitHub call failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
+-- notifications
+== first run, a review list fails
+A GitHub call failed. The next run tries again.
+exit 1
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api --paginate repos/acme/api/pulls/1/reviews?per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 == first run
 Seeded 3 past events. Only new ones will pop up.
@@ -38,6 +71,7 @@ search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json
 search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
@@ -53,6 +87,13 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -message Fix footer
 -open https://github.com/acme/web/pull/6
 -group https://github.com/acme/web/pull/6
+-sound Glass
+
+-title ✅ Approved · api#1
+-subtitle kim · your PR · 10:25
+-message Add users\admins
+-open https://github.com/acme/api/pull/1#pullrequestreview-7
+-group https://github.com/acme/api/pull/1#pullrequestreview-7
 -sound Glass
 
 -title ✅ Approved · api#1
@@ -90,6 +131,16 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -group https://github.com/acme/api/pull/2
 -sound Glass
 
+== third run, nothing new
+exit 0
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
+-- notifications
 == --test
 Sent a test notification. Nothing on screen means macOS is blocking it:
 System Settings > Notifications > terminal-notifier > Allow notifications.
@@ -112,6 +163,7 @@ search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json
 search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
@@ -123,8 +175,18 @@ api --paginate repos/acme/web/issues/6/comments?since=2025-10-26T12:00:00Z&per_p
 api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 display notification "Fix footer" with title "👀 Review requested · web#6" subtitle "ivy · ivy's PR · 10:00"
+display notification "Add users\\admins" with title "✅ Approved · api#1" subtitle "kim · your PR · 10:25"
 display notification "LGTM" with title "✅ Approved · api#1" subtitle "alice · your PR · 10:15"
 display notification "Needs tests" with title "⛔️ Changes requested · api#2" subtitle "frank · erin's PR · 10:40"
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
 display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
 display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+== install.sh, GH_REVIEW_NOTIFY_INTERVAL=3m
+GH_REVIEW_NOTIFY_INTERVAL takes whole seconds, such as 180.
+exit 1
+== install.sh, GH_REVIEW_NOTIFY_DAYS=0
+GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3.
+exit 1
+== install.sh, GH_REVIEW_NOTIFY_BOTS=yes
+GH_REVIEW_NOTIFY_BOTS takes 0 or 1.
+exit 1

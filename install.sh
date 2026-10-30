@@ -17,6 +17,18 @@ log_file="$HOME/Library/Logs/gh-review-notify.log"
 
 fail() { echo "$1" >&2; exit 1; }
 
+# The values go into the agent plist as they are, and a bad one breaks the agent.
+check_settings() {
+  whole_number "$poll_seconds" || fail "GH_REVIEW_NOTIFY_INTERVAL takes whole seconds, such as 180."
+  whole_number "$lookback_days" || fail "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3."
+  case "$show_bots" in 0 | 1) ;; *) fail "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
+}
+
+whole_number() { # value
+  case "$1" in '' | *[!0-9]*) return 1 ;; esac
+  [ "$1" -gt 0 ]
+}
+
 check_requirements() {
   [ "$(uname)" = "Darwin" ] || fail "macOS only."
   command -v gh > /dev/null || fail "Install the GitHub CLI first: brew install gh"
@@ -40,18 +52,22 @@ register_notifier_app() {
 }
 
 # Takes the script from the clone beside this file, from GH_REVIEW_NOTIFY_SRC, or from GitHub.
+# The agent of an earlier install can start at any moment, so the new script
+# replaces the old one in a single rename, and a failed download leaves it be.
 copy_script() {
-  local clone_dir
+  local clone_dir new_script="$installed_script.new"
   mkdir -p "$bin_dir"
   clone_dir=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2> /dev/null && pwd || echo .)
   if [ -f "$clone_dir/gh-review-notify" ]; then
-    cp "$clone_dir/gh-review-notify" "$installed_script"
+    cp "$clone_dir/gh-review-notify" "$new_script"
   elif [ -n "$source_url" ]; then
-    curl -fsSL "$source_url/gh-review-notify" -o "$installed_script"
+    curl -fsSL "$source_url/gh-review-notify" -o "$new_script"
   else
-    gh api -H 'Accept: application/vnd.github.raw' "repos/$github_repo/contents/gh-review-notify" > "$installed_script"
+    gh api -H 'Accept: application/vnd.github.raw' "repos/$github_repo/contents/gh-review-notify" > "$new_script"
   fi
-  chmod +x "$installed_script"
+  head -n 1 "$new_script" | grep -qx '#!/bin/bash' || fail "The download of gh-review-notify is not the script. Try again."
+  chmod +x "$new_script"
+  mv "$new_script" "$installed_script"
 }
 
 write_agent_plist() {
@@ -106,6 +122,7 @@ System Settings > Notifications > terminal-notifier, then run:
 TEXT
 }
 
+check_settings
 check_requirements
 brew_install_missing jq
 brew_install_missing terminal-notifier

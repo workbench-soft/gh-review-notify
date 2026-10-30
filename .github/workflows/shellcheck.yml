@@ -12,6 +12,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# The job only reads the repo.
+permissions:
+  contents: read
+
 # Steps run in bash. On Windows the default would be PowerShell.
 defaults:
   run:
@@ -22,8 +26,10 @@ jobs:
   shellcheck:
     runs-on: [self-hosted, local]
     steps:
-      - uses: actions/checkout@v4
-      - run: command -v shellcheck || winget.exe install --id koalaman.shellcheck --exact --silent --accept-source-agreements --accept-package-agreements
+      # Pinned to a commit: the job runs on the PC itself.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # The runner may be the Mac or the Windows PC: brew on one, winget on the other.
+      - run: command -v shellcheck || if command -v brew; then brew install shellcheck; else winget.exe install --id koalaman.shellcheck --exact --silent --accept-source-agreements --accept-package-agreements; fi
       - run: shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/*
-      - run: command -v jq || winget.exe install --id jqlang.jq --exact --silent --accept-source-agreements --accept-package-agreements
+      - run: command -v jq || if command -v brew; then brew install jq; else winget.exe install --id jqlang.jq --exact --silent --accept-source-agreements --accept-package-agreements; fi
       - run: bash tests/run.sh

@@ -38,13 +38,16 @@ main() {
   : > "$events_file"
   touch "$updated_cache" "$requests_cache"
 
-  my_login=$(gh api user --jq .login) || { echo "gh is not logged in: run gh auth login" >&2; exit 1; }
+  my_login=$(gh api user --jq .login) || { echo "Could not read your GitHub login. Check the network, or run gh auth login." >&2; exit 1; }
   since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
-  list_involved_prs
-  collect_review_requests
-  collect_pr_events
+  # A failed search would read as "no PRs" and wipe the caches. On the first run
+  # any failed call would leave events unseen, and the next run would show them.
+  if ! list_involved_prs || ! collect_review_requests || ! collect_pr_events; then
+    echo "A GitHub call failed. The next run tries again." >&2
+    exit 1
+  fi
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
 
@@ -62,7 +65,9 @@ send_test_notification() {
 
 print_status() {
   local agent
-  agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" { print "running, last exit code " $2 }')
+  # launchctl list prints the PID, or "-" while the agent waits for its next run.
+  agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" {
+    print ($1 == "-" ? "loaded, waiting for the next run" : "running now") ", last exit code " $2 }')
   echo "agent:    ${agent:-not loaded, run install.sh}"
   echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
@@ -87,12 +92,12 @@ clean_up() {
 
 # Writes url, title, updatedAt and author for each open PR you are part of.
 list_involved_prs() {
-  {
-    search_open_prs --author @me
-    search_open_prs --involves @me
-    search_open_prs --reviewed-by @me
-  } 2> /dev/null |
-    jq -rs 'add | unique_by(.url) | .[] | [.url, .title, .updatedAt, .author.login] | @tsv' > "$work_dir/involved.tsv"
+  local role
+  : > "$work_dir/found.json"
+  for role in --author --involves --reviewed-by; do
+    search_open_prs "$role" @me >> "$work_dir/found.json" || return 1
+  done
+  jq -rs 'add | unique_by(.url) | .[] | [.url, .title, .updatedAt, .author.login] | @tsv'     "$work_dir/found.json" > "$work_dir/involved.tsv"
 }
 
 search_open_prs() {
@@ -104,16 +109,16 @@ search_open_prs() {
 collect_review_requests() {
   local url title author updated scope
   gh search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq \
-    '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" 2> /dev/null
+    '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" || return 1
 
   : > "$work_dir/asked-me.tsv"
   : > "$work_dir/request-scopes.tsv"
   while IFS=$'\t' read -r url title author updated; do
     scope=""
     [ "$(cached_value "$requests_cache" "$url" 2)" = "$updated" ] && scope=$(cached_value "$requests_cache" "$url" 3)
-    if [ -z "$scope" ]; then
-      if asked_me_by_name "$url"; then scope=personal; else scope=team; fi
-    fi
+    # A failed lookup leaves the PR out of the cache, so the next run asks again.
+    # The first run stops instead, since it can't record the PR's events.
+    [ -n "$scope" ] || scope=$(request_scope "$url") || { [ "$seeding" = 0 ] || return 1; continue; }
     printf '%s\t%s\t%s\n' "$url" "$updated" "$scope" >> "$work_dir/request-scopes.tsv"
     [ "$scope" = "personal" ] || continue
 
@@ -125,10 +130,11 @@ collect_review_requests() {
   mv "$work_dir/request-scopes.tsv" "$requests_cache"
 }
 
-asked_me_by_name() { # PR url
+request_scope() { # PR url; prints personal or team
+  local reviewers
   parse_pr_url "$1"
-  gh api "repos/$pr_repo/pulls/$pr_number" --jq '.requested_reviewers[].login' 2> /dev/null |
-    grep -qxF "$my_login"
+  reviewers=$(gh api "repos/$pr_repo/pulls/$pr_number" --jq '.requested_reviewers[].login' 2> /dev/null) || return 1
+  if grep -qxF "$my_login" <<< "$reviewers"; then echo personal; else echo team; fi
 }
 
 # Reads the reviews and comments of each PR whose updatedAt moved since the last run.
@@ -148,9 +154,12 @@ collect_pr_events() {
     gh api --paginate "repos/$pr_repo/pulls/$pr_number/reviews?per_page=100" > "$work_dir/reviews.json" 2> /dev/null || fetched=0
     gh api --paginate "repos/$pr_repo/issues/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/conversation.json" 2> /dev/null || fetched=0
     gh api --paginate "repos/$pr_repo/pulls/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/diff.json" 2> /dev/null || fetched=0
-    pr_event_rows "$title" "$pr_author" >> "$events_file"
+    # The title comes from a TSV row, and pr_event_rows escapes it again.
+    pr_event_rows "$(from_tsv "$title")" "$pr_author" >> "$events_file"
 
     # After a failed call the PR stays out of the cache, so the next run reads it again.
+    # The first run stops instead, since the next run would show the events it missed.
+    [ "$fetched" = 1 ] || [ "$seeding" = 0 ] || return 1
     [ "$fetched" = 1 ] && printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
   done < "$work_dir/watched.tsv"
   mv "$work_dir/next-updated.tsv" "$updated_cache"
@@ -181,9 +190,12 @@ pr_event_rows() { # title, PR author
         (if (.body // "") == "" then $title else .body[0:150] | one_line end) ]
     | @tsv' "$work_dir/reviews.json" 2> /dev/null
 
+  # GitHub's since= keeps comments edited after that time, old ones too.
+  # Diff comments keep it: a draft review can hold comments older than the window.
   jq -r "${args[@]}" "$by_others"'
     .[]
     | by_others
+    | select(.created_at > $since)
     | [.html_url, "comment", .created_at, .user.login, $pr, $author, ((.body // "")[0:150] | one_line)]
     | @tsv' "$work_dir/conversation.json" 2> /dev/null
 
