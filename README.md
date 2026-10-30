@@ -60,9 +60,8 @@ flood the screen. The events already shown are listed in
 
 ## Install
 
-You need macOS and the [GitHub CLI](https://cli.github.com), logged in. The repo
-is private in the `workbench-soft` org, and `gh` fetches the files with your
-login.
+You need macOS and the [GitHub CLI](https://cli.github.com), logged in. The
+install fetches the files through `gh`.
 
 ```sh
 /bin/bash -c "$(gh api -H 'Accept: application/vnd.github.raw' repos/workbench-soft/gh-review-notify/contents/install.sh)"
@@ -135,7 +134,7 @@ bash tests/run.sh            # compares with tests/expected.txt
 bash tests/run.sh --update   # rewrites tests/expected.txt after a change you meant
 ```
 
-CI runs both on the Windows PC runner.
+CI runs both on a GitHub macOS runner.
 
 ## Licence
 

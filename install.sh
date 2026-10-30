@@ -3,7 +3,7 @@
 # it every few minutes and again at each login.
 set -euo pipefail
 
-# The repo is private, so outside a clone the files come through gh with your login.
+# Outside a clone the files come through gh, which the tool needs anyway.
 github_repo=workbench-soft/gh-review-notify
 source_url=${GH_REVIEW_NOTIFY_SRC:-}
 agent_label=io.github.gh-review-notify
