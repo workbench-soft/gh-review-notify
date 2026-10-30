@@ -47,6 +47,7 @@ search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json
 search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
@@ -99,6 +100,16 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -group https://github.com/acme/api/pull/2
 -sound Glass
 
+== third run, nothing new
+exit 0
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
+-- notifications
 == --test
 Sent a test notification. Nothing on screen means macOS is blocking it:
 System Settings > Notifications > terminal-notifier > Allow notifications.
@@ -121,6 +132,7 @@ search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json
 search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100

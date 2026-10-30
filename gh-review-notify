@@ -115,9 +115,8 @@ collect_review_requests() {
   while IFS=$'\t' read -r url title author updated; do
     scope=""
     [ "$(cached_value "$requests_cache" "$url" 2)" = "$updated" ] && scope=$(cached_value "$requests_cache" "$url" 3)
-    if [ -z "$scope" ]; then
-      if asked_me_by_name "$url"; then scope=personal; else scope=team; fi
-    fi
+    # A failed lookup leaves the PR out of the cache, so the next run asks again.
+    [ -n "$scope" ] || scope=$(request_scope "$url") || continue
     printf '%s\t%s\t%s\n' "$url" "$updated" "$scope" >> "$work_dir/request-scopes.tsv"
     [ "$scope" = "personal" ] || continue
 
@@ -129,10 +128,11 @@ collect_review_requests() {
   mv "$work_dir/request-scopes.tsv" "$requests_cache"
 }
 
-asked_me_by_name() { # PR url
+request_scope() { # PR url; prints personal or team
+  local reviewers
   parse_pr_url "$1"
-  gh api "repos/$pr_repo/pulls/$pr_number" --jq '.requested_reviewers[].login' 2> /dev/null |
-    grep -qxF "$my_login"
+  reviewers=$(gh api "repos/$pr_repo/pulls/$pr_number" --jq '.requested_reviewers[].login' 2> /dev/null) || return 1
+  if grep -qxF "$my_login" <<< "$reviewers"; then echo personal; else echo team; fi
 }
 
 # Reads the reviews and comments of each PR whose updatedAt moved since the last run.

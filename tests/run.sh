@@ -42,6 +42,8 @@ run() { # fixture set, arguments
   cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"
   echo "== second run"
   run next
+  echo "== third run, nothing new"
+  run next
   echo "== --test"
   run next --test
 
