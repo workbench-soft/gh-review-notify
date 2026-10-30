@@ -13,7 +13,7 @@
 
 ## app-audit
 
-- [ ] Run `./install.sh` again on the Mac, then check that `gh-review-notify --status` reads "loaded, waiting for the next run". The audit fixes ran on Windows with stubs only: `launchctl`, `osascript` and BSD `date` didn't run (branch `audit-2026-10-30`).
+- [ ] Run `./install.sh` again on the Mac, then check that `gh-review-notify --status` reads "loaded, waiting for the next run". The audit fixes ran on Windows with stubs only: `launchctl`, `osascript` and BSD `date` didn't run (PR #7).
 - [ ] After the merge, watch the shellcheck run on main. The new brew branch of the install steps runs only when the job lands on the Mac runner. `.github/workflows/shellcheck.yml`
 - Left: a re-requested review stays silent, since `#review-requested` is already in `seen.txt`. The fix needs the PR timeline API and a new event key, effort M.
 - Left: gh calls have no timeout. Stock macOS has no `timeout` command, and launchd doesn't start a second run while one runs.
