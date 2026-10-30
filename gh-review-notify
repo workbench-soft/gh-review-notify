@@ -66,7 +66,9 @@ send_test_notification() {
 
 print_status() {
   local agent
-  agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" { print "running, last exit code " $2 }')
+  # launchctl list prints the PID, or "-" while the agent waits for its next run.
+  agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" {
+    print ($1 == "-" ? "loaded, waiting for the next run" : "running now") ", last exit code " $2 }')
   echo "agent:    ${agent:-not loaded, run install.sh}"
   echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
