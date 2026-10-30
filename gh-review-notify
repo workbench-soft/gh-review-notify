@@ -152,7 +152,8 @@ collect_pr_events() {
     gh api --paginate "repos/$pr_repo/pulls/$pr_number/reviews?per_page=100" > "$work_dir/reviews.json" 2> /dev/null || fetched=0
     gh api --paginate "repos/$pr_repo/issues/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/conversation.json" 2> /dev/null || fetched=0
     gh api --paginate "repos/$pr_repo/pulls/$pr_number/comments?since=$since_time&per_page=100" > "$work_dir/diff.json" 2> /dev/null || fetched=0
-    pr_event_rows "$title" "$pr_author" >> "$events_file"
+    # The title comes from a TSV row, and pr_event_rows escapes it again.
+    pr_event_rows "$(from_tsv "$title")" "$pr_author" >> "$events_file"
 
     # After a failed call the PR stays out of the cache, so the next run reads it again.
     [ "$fetched" = 1 ] && printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"

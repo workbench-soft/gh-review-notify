@@ -66,6 +66,13 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -sound Glass
 
 -title ✅ Approved · api#1
+-subtitle kim · your PR · 10:25
+-message Add users\admins
+-open https://github.com/acme/api/pull/1#pullrequestreview-7
+-group https://github.com/acme/api/pull/1#pullrequestreview-7
+-sound Glass
+
+-title ✅ Approved · api#1
 -subtitle alice · your PR · 10:15
 -message LGTM
 -open https://github.com/acme/api/pull/1#pullrequestreview-2
@@ -144,6 +151,7 @@ api --paginate repos/acme/web/issues/6/comments?since=2025-10-26T12:00:00Z&per_p
 api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_page=100
 -- notifications
 display notification "Fix footer" with title "👀 Review requested · web#6" subtitle "ivy · ivy's PR · 10:00"
+display notification "Add users\\admins" with title "✅ Approved · api#1" subtitle "kim · your PR · 10:25"
 display notification "LGTM" with title "✅ Approved · api#1" subtitle "alice · your PR · 10:15"
 display notification "Needs tests" with title "⛔️ Changes requested · api#2" subtitle "frank · erin's PR · 10:40"
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
