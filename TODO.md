@@ -19,4 +19,5 @@
 - Left: gh calls have no timeout. Stock macOS has no `timeout` command, and launchd doesn't start a second run while one runs.
 - Left: the cache files carry no format number. A new format can take a new file name, and the script then reseeds quietly.
 - Left: `install.sh` and `--status` have no test. They need stubs for `launchctl`, `stat` and `brew`, effort M.
+- Left: an old inline diff comment edited today still pops up. Filtering it by creation time could hide a draft review sent days later, so GitHub's draft timestamps need checking first.
 - Left: no `mise.toml` pins shellcheck and jq. CI installs them through brew or winget, so a pin pays off only once CI runs mise too.
