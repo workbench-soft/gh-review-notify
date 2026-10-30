@@ -189,6 +189,7 @@ pr_event_rows() { # title, PR author
     | @tsv' "$work_dir/reviews.json" 2> /dev/null
 
   # GitHub's since= keeps comments edited after that time, old ones too.
+  # Diff comments keep it: a draft review can hold comments older than the window.
   jq -r "${args[@]}" "$by_others"'
     .[]
     | by_others
@@ -199,7 +200,6 @@ pr_event_rows() { # title, PR author
   jq -r "${args[@]}" "$by_others"'
     .[]
     | by_others
-    | select(.created_at > $since)
     | [.html_url, "comment", .created_at, .user.login, $pr, $author, (.path // "") + ": " + ((.body // "")[0:120] | one_line)]
     | @tsv' "$work_dir/diff.json" 2> /dev/null
 }
