@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Architecture decisions** `docs/architecture.md` gets a Decisions section. Each big choice names its reason, its cost and the rivals it beat.
+
 - **Lint and format** shfmt formats the scripts and oxfmt the Markdown. CI runs `mise run lint` with shellcheck.
 
 - **Releases** each push to `main` that passes `shellcheck` gets a GitHub release such as `v2026.10.30.1`. Its notes list the commits since the release before.
