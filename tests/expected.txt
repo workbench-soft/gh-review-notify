@@ -154,6 +154,16 @@ exit 0
 -group https://github.com/notifications
 -sound Glass
 
+== bad setting, GH_REVIEW_NOTIFY_DAYS=3d
+GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3.
+exit 1
+-- gh calls
+-- notifications
+== bad setting, GH_REVIEW_NOTIFY_BOTS=yes
+GH_REVIEW_NOTIFY_BOTS takes 0 or 1.
+exit 1
+-- gh calls
+-- notifications
 == second run, osascript
 exit 0
 -- gh calls

@@ -126,11 +126,11 @@ It works with github.com only. Enterprise hosts are out.
 
 `tests/run.sh` runs the script against canned GitHub answers in
 `tests/fixtures`, and feeds `install.sh` bad settings. Stubs stand in for `gh`, the macOS `date` and
-`terminal-notifier`, so it runs on Windows too. It needs `jq`.
+`terminal-notifier`, so it runs on Windows too. mise pins `jq` and the linters.
 
 ```sh
-shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/*
-bash tests/run.sh            # compares with tests/expected.txt
+mise run lint                # shellcheck, shfmt, markdownlint and oxfmt
+mise run test                # compares with tests/expected.txt
 bash tests/run.sh --update   # rewrites tests/expected.txt after a change you meant
 ```
 

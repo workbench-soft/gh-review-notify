@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Settings** a run with a bad `GH_REVIEW_NOTIFY_DAYS` or `GH_REVIEW_NOTIFY_BOTS` stops and says what it takes. Before, it called GitHub with a broken date and logged a GitHub failure.
+- **CI** mise pins `jq` and runs the tests through `mise run test`. Both workflows check out with the same `actions/checkout` release.
 - **Docs** each heading of `docs/features.md` links its spec, and each feature that had no spec got one.
 - **Markdown** markdownlint-cli2 lints the docs in `mise run lint`.
 
