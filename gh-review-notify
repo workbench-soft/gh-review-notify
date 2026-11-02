@@ -34,6 +34,9 @@ main() {
     echo "jq is not installed" >&2
     exit 1
   }
+  # A bad value would reach date and gh, and the run would blame GitHub.
+  case "$lookback_days" in '' | *[!0-9]* | 0) fail_setting "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
+  case "$show_bots" in 0 | 1) ;; *) fail_setting "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
 
   mkdir -p "$cache_dir"
   take_lock || exit 0
@@ -70,6 +73,11 @@ main() {
   [ "$seeding" = 1 ] && echo "Seeded $(wc -l < "$seen_file" | tr -d ' ') past events. Only new ones will pop up."
   finished=1
   exit 0
+}
+
+fail_setting() { # message
+  echo "$1" >&2
+  exit 1
 }
 
 send_test_notification() {

@@ -51,6 +51,10 @@ run() { # fixture set, arguments
   run next
   echo "== --test"
   run next --test
+  echo "== bad setting, GH_REVIEW_NOTIFY_DAYS=3d"
+  GH_REVIEW_NOTIFY_DAYS=3d run next
+  echo "== bad setting, GH_REVIEW_NOTIFY_BOTS=yes"
+  GH_REVIEW_NOTIFY_BOTS=yes run next
 
   # Without terminal-notifier the script falls back to osascript.
   mkdir "$work/osascript-stubs"
