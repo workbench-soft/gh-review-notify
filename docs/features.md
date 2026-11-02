@@ -9,12 +9,16 @@ open PRs. It appears in macOS Notification Center within 3 minutes.
 - **Limits** github.com only. Open PRs updated in the last 3 days, 100 per
   search.
 
+Spec: [review-notifications](../specs/review-notifications.md).
+
 ## Review requests
 
 A notification shows when someone asks you by name to review a PR.
 
 - **Where** Notification Center, with the 👀 badge.
 - **Limits** a request sent to one of your teams stays silent.
+
+Spec: [review-notifications](../specs/review-notifications.md).
 
 ## Comment bursts
 
@@ -23,6 +27,8 @@ count and the names. Approvals and change requests still come one by one.
 
 - **Where** Notification Center. A click opens the PR.
 
+Spec: [review-notifications](../specs/review-notifications.md).
+
 ## Quiet first run
 
 The first run records the last 3 days of events and shows none of them. A first
@@ -30,11 +36,15 @@ run that fails records nothing, so the next run seeds again.
 
 - **Where** the install prints "Seeded N past events".
 
+Spec: [review-notifications](../specs/review-notifications.md).
+
 ## Bot filter
 
 Comments by bot accounts stay silent.
 
 - **Where** `GH_REVIEW_NOTIFY_BOTS=1 ./install.sh` turns them on.
+
+Spec: [review-notifications](../specs/review-notifications.md).
 
 ## Status and test
 
@@ -42,8 +52,12 @@ Comments by bot accounts stay silent.
   settings and the log path.
 - **`--test`** sends a test notification.
 
+Spec: [review-notifications](../specs/review-notifications.md).
+
 ## Releases
 
 - **What it gives** a tagged release such as `v2026.10.30.1` for each push to `main` that passes `shellcheck`. Its notes list the commits since the release before.
 - **Where** the [Releases page](https://github.com/workbench-soft/gh-review-notify/releases).
 - **Limits** notes only, with no files to download.
+
+Spec: [releases](../specs/releases.md).
