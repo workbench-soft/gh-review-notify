@@ -3,6 +3,8 @@
 ## Unreleased
 
 - **Docs** each heading of `docs/features.md` links its spec, and each feature that had no spec got one.
+- **Markdown** markdownlint-cli2 lints the docs in `mise run lint`.
+
 - **Architecture decisions** `docs/architecture.md` gets a Decisions section. Each big choice names its reason, its cost and the rivals it beat.
 
 - **Lint and format** shfmt formats the scripts and oxfmt the Markdown. CI runs `mise run lint` with shellcheck.

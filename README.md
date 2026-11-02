@@ -26,7 +26,7 @@ The script reads the reviews, the comments on the conversation tab and the
 inline comments on the diff. It drops your own and the ones it already showed.
 Each one left gets a notification:
 
-```
+```text
 ✅ Approved · api-users#570
 alice · your PR · 14:32
 LGTM
