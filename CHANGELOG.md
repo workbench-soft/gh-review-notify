@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Parallel release builds** releases build beside checks after a push. Only publication waits for matching checks; open PRs hold no build.
+
 - **CI** Release waits while a PR of an agent session is open, so the last merge of a batch releases them all.
 - **Settings** a run with a bad `GH_REVIEW_NOTIFY_DAYS` or `GH_REVIEW_NOTIFY_BOTS` stops and says what it takes. Before, it called GitHub with a broken date and logged a GitHub failure.
 - **CI** mise pins `jq` and runs the tests through `mise run test`. Both workflows check out with the same `actions/checkout` release.
