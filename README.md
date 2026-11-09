@@ -85,7 +85,8 @@ The install ends with a test notification. If it doesn't show, switch on
 ## Settings
 
 The installer checks these and writes them into the agent. A value it can't
-use stops the install with a message:
+use stops the install with a message. Each run checks the days and the bot
+setting again, and a bad value stops the run with a line in the log:
 
 ```sh
 GH_REVIEW_NOTIFY_INTERVAL=60 ./install.sh   # poll every 60 seconds, default 180
@@ -125,7 +126,7 @@ It works with github.com only. Enterprise hosts are out.
 ## Development
 
 `tests/run.sh` runs the script against canned GitHub answers in
-`tests/fixtures`, and feeds `install.sh` bad settings. Stubs stand in for `gh`, the macOS `date` and
+`tests/fixtures`, and feeds `install.sh` and the script bad settings. Stubs stand in for `gh`, the macOS `date` and
 `terminal-notifier`, so it runs on Windows too. mise pins `jq` and the linters.
 
 ```sh

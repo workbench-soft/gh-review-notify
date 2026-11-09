@@ -14,8 +14,8 @@ release before, so a reader sees what changed without reading the log.
 
 ## How it works
 
-- **`.github/workflows/release.yml`** starts when `shellcheck.yml` finishes on a
-  push to `main`. It runs on `ubuntu-latest`. The repo is public, so GitHub runners cost 0 minutes and fork code stays off the PC.
+- **`.github/workflows/release.yml`** starts on `workflow_run` when `shellcheck.yml` passes on a
+  push to `main`. One release runs at a time. A run by hand on `main` publishes only when shellcheck of the commit passed. It runs on `ubuntu-latest`. The repo is public, so GitHub runners cost 0 minutes and fork code stays off the PC.
 - **`.github/scripts/next-version.sh`** picks the tag: the date, then the
   number of the release that day.
 - **`.github/scripts/release-notes.sh`** writes the notes from the commits
@@ -41,3 +41,8 @@ release before, so a reader sees what changed without reading the log.
 
 - **Why** the parallel release change pushed the tag before the release, left comments above the wrong steps, a guard script with mode 100644 and agent rules in the docs.
 - **Changes** `release.yml` follows the `repo-ci` template, with `gh release create --target`. The pasted "Release build timing" sections go.
+
+### 2026-11-10 Release starts on workflow_run
+
+- **Why** 9b81ccf moved Release from a push run that waited for shellcheck to `workflow_run`, so no job holds a runner while it waits.
+- **Docs** the top of this spec and `CHANGELOG.md` describe the `workflow_run` start.
