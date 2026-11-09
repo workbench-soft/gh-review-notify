@@ -183,7 +183,3 @@ the PR URL plus `#review-requested`.
   - **The PC runner** a public repo would run outside code on the PC.
   - **A Homebrew tap** it needs a formula update per release.
 - **Cost to undo** low. `install.sh` and the workflows.
-
-## Release build timing
-
-Release builds MUST start on pushes alongside their matching checks. Publication MUST wait for successful checks of the same commit and branch. Open PRs MUST NOT delay the build. LocalCI MUST record the causing run, commit and PR before cancelling a replaced build or a release whose checks failed.

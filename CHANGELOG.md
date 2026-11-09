@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **CI** `gh release create` makes the tag with the release, so a failed publish leaves no stray tag. The Release comments say what each step does, the guard script is the `repo-ci` one with its run bit, and the docs lose the agent rules pasted in by the CI rollout.
 - **Parallel release builds** releases build beside checks after a push. Only publication waits for matching checks; open PRs hold no build.
 
 - **CI** Release waits while a PR of an agent session is open, so the last merge of a batch releases them all.
