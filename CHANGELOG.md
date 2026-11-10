@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Lint before the push** a pre-push hook runs `mise run lint`, so a lint or format error stays on the PC instead of failing Checks on `main`.
+
 - **Docs** the README and the release spec say the script checks its settings at each run, and that Release starts on `workflow_run` of shellcheck.
 
 - **CI** Release starts on `workflow_run` once shellcheck passes on `main`, one at a time. No job holds a runner while it waits.
