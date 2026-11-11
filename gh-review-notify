@@ -15,6 +15,7 @@ seen_file="$cache_dir/seen.txt"
 updated_cache="$cache_dir/pr-updated.tsv"
 requests_cache="$cache_dir/review-requests.tsv"
 lock_dir="$cache_dir/lock"
+log_file="$HOME/Library/Logs/gh-review-notify.log"
 
 main() {
   case "${1:-}" in
@@ -28,6 +29,7 @@ main() {
       ;;
   esac
 
+  trim_log
   command -v gh > /dev/null || fail "gh is not installed"
   command -v jq > /dev/null || fail "jq is not installed"
   # A bad value would reach date and gh, and the run would blame GitHub.
@@ -88,7 +90,16 @@ print_status() {
   echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
   echo "seen:     $( (wc -l < "$seen_file" 2> /dev/null || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
-  echo "log:      $HOME/Library/Logs/gh-review-notify.log"
+  echo "log:      $log_file"
+}
+
+# launchd appends each run's output to the log, and a Mac offline for weeks adds
+# 2 lines every 3 minutes. Past 1 MB the log keeps its last 1000 lines. It is
+# rewritten in place, since launchd holds it open for appending.
+trim_log() {
+  [ -f "$log_file" ] && [ "$(wc -c < "$log_file" | tr -d ' ')" -gt 1000000 ] || return 0
+  tail -n 1000 "$log_file" > "$log_file.trim" && cat "$log_file.trim" > "$log_file"
+  rm -f "$log_file.trim"
 }
 
 # A manual run and the agent take turns, so the same comment can't pop up twice.

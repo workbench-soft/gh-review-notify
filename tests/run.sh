@@ -16,6 +16,7 @@ export REAL_JQ
 REAL_JQ=$(command -v jq)
 export STUBS="$tests/stubs"
 export XDG_CACHE_HOME="$work/cache"
+export HOME="$work/home"
 export GH_CALLS="$work/calls.txt"
 export NOTIFICATIONS="$work/notifications.txt"
 export NOW=1761739200 # 2025-10-29T12:00:00Z
@@ -52,8 +53,11 @@ run() { # fixture set, arguments
   run seed
   echo "== second run"
   run next
-  echo "== third run, nothing new"
+  echo "== third run, nothing new, a log past 1 MB"
+  mkdir -p "$HOME/Library/Logs"
+  for i in $(seq 1 15000); do echo "$i A GitHub call failed. The next run tries again. Some padding text."; done > "$HOME/Library/Logs/gh-review-notify.log"
   run next
+  echo "-- log lines left: $(wc -l < "$HOME/Library/Logs/gh-review-notify.log" | tr -d ' '), last: $(tail -n 1 "$HOME/Library/Logs/gh-review-notify.log" | cut -d' ' -f1)"
   echo "== --test"
   run next --test
   echo "== bad setting, GH_REVIEW_NOTIFY_DAYS=3d"

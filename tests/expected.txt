@@ -154,7 +154,7 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -group https://github.com/acme/api/pull/2
 -sound Glass
 
-== third run, nothing new
+== third run, nothing new, a log past 1 MB
 exit 0
 -- gh calls
 api user --jq .login
@@ -164,6 +164,7 @@ search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --j
 search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 -- notifications
+-- log lines left: 1000, last: 15000
 == --test
 Sent a test notification. Nothing on screen means macOS is blocking it:
 System Settings > Notifications > terminal-notifier > Allow notifications.
