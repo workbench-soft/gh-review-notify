@@ -1,13 +1,13 @@
 == first run, logged out
 gh: not logged in
-Could not read your GitHub login. Check the network, or run gh auth login.
+2025-10-29 12:00:00 Could not read your GitHub login. Check the network, or run gh auth login.
 exit 1
 -- gh calls
 api user --jq .login
 -- notifications
 == first run, a search fails
 HTTP 403: API rate limit exceeded
-A GitHub call failed. The next run tries again.
+2025-10-29 12:00:00 A GitHub call failed. The next run tries again.
 exit 1
 -- gh calls
 api user --jq .login
@@ -15,7 +15,7 @@ search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json u
 search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
 -- notifications
 == first run, a reviewer lookup fails
-A GitHub call failed. The next run tries again.
+2025-10-29 12:00:00 A GitHub call failed. The next run tries again.
 exit 1
 -- gh calls
 api user --jq .login
@@ -26,7 +26,7 @@ search prs --review-requested @me --state open --limit 100 --json url,title,auth
 api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
 -- notifications
 == first run, a review list fails
-A GitHub call failed. The next run tries again.
+2025-10-29 12:00:00 A GitHub call failed. The next run tries again.
 exit 1
 -- gh calls
 api user --jq .login
@@ -178,12 +178,12 @@ exit 0
 -sound Glass
 
 == bad setting, GH_REVIEW_NOTIFY_DAYS=3d
-GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3.
+2025-10-29 12:00:00 GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3.
 exit 1
 -- gh calls
 -- notifications
 == bad setting, GH_REVIEW_NOTIFY_BOTS=yes
-GH_REVIEW_NOTIFY_BOTS takes 0 or 1.
+2025-10-29 12:00:00 GH_REVIEW_NOTIFY_BOTS takes 0 or 1.
 exit 1
 -- gh calls
 -- notifications

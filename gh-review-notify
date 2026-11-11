@@ -28,17 +28,11 @@ main() {
       ;;
   esac
 
-  command -v gh > /dev/null || {
-    echo "gh is not installed" >&2
-    exit 1
-  }
-  command -v jq > /dev/null || {
-    echo "jq is not installed" >&2
-    exit 1
-  }
+  command -v gh > /dev/null || fail "gh is not installed"
+  command -v jq > /dev/null || fail "jq is not installed"
   # A bad value would reach date and gh, and the run would blame GitHub.
-  case "$lookback_days" in '' | *[!0-9]* | 0) fail_setting "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
-  case "$show_bots" in 0 | 1) ;; *) fail_setting "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
+  case "$lookback_days" in '' | *[!0-9]* | 0) fail "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
+  case "$show_bots" in 0 | 1) ;; *) fail "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
 
   mkdir -p "$cache_dir"
   take_lock || exit 0
@@ -55,18 +49,14 @@ main() {
   : > "$events_file"
   touch "$updated_cache" "$requests_cache"
 
-  my_login=$(gh api user --jq .login) || {
-    echo "Could not read your GitHub login. Check the network, or run gh auth login." >&2
-    exit 1
-  }
+  my_login=$(gh api user --jq .login) || fail "Could not read your GitHub login. Check the network, or run gh auth login."
   since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
   # A failed search would read as "no PRs" and wipe the caches. On the first run
   # any failed call would leave events unseen, and the next run would show them.
   if ! list_involved_prs || ! collect_review_requests || ! collect_pr_events; then
-    echo "A GitHub call failed. The next run tries again." >&2
-    exit 1
+    fail "A GitHub call failed. The next run tries again."
   fi
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
@@ -77,8 +67,9 @@ main() {
   exit 0
 }
 
-fail_setting() { # message
-  echo "$1" >&2
+# The log gets a line each failed run, and the time tells when the trouble began.
+fail() { # message
+  echo "$(date '+%F %T') $1" >&2
   exit 1
 }
 
