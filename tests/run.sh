@@ -78,6 +78,13 @@ run() { # fixture set, arguments
   echo "== second run, osascript"
   STUBS="$work/osascript-stubs" run next
 
+  # gh outside the Homebrew folders is missing for the agent, whatever the shell finds.
+  mkdir "$work/no-gh-stubs"
+  cp "$STUBS"/* "$work/no-gh-stubs/"
+  rm "$work/no-gh-stubs/gh"
+  echo "== gh missing"
+  STUBS="$work/no-gh-stubs" run next
+
   # An empty PATH stops install.sh at its macOS check if a bad value gets past.
   for setting in GH_REVIEW_NOTIFY_INTERVAL=3m GH_REVIEW_NOTIFY_DAYS=0 GH_REVIEW_NOTIFY_BOTS=yes; do
     echo "== install.sh, $setting"

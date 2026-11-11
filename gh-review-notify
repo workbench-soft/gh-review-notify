@@ -40,8 +40,9 @@ main() {
   esac
 
   trim_log
-  command -v gh > /dev/null || fail "gh is not installed"
-  command -v jq > /dev/null || fail "jq is not installed"
+  # launchd gives the agent the PATH above, not the one of your shell.
+  command -v gh > /dev/null || fail "gh is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install gh"
+  command -v jq > /dev/null || fail "jq is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install jq"
   # A bad value would reach date and gh, and the run would blame GitHub.
   case "$lookback_days" in '' | *[!0-9]* | 0) fail "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
   case "$show_bots" in 0 | 1) ;; *) fail "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac

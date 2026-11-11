@@ -240,6 +240,11 @@ display notification "Needs tests" with title "⛔️ Changes requested · api#2
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
 display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
 display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+== gh missing
+2025-10-29 12:00:00 gh is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install gh
+exit 1
+-- gh calls
+-- notifications
 == install.sh, GH_REVIEW_NOTIFY_INTERVAL=3m
 GH_REVIEW_NOTIFY_INTERVAL takes whole seconds, such as 180.
 exit 1
