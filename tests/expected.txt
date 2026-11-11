@@ -178,6 +178,31 @@ exit 0
 -group https://github.com/notifications
 -sound Glass
 
+== --help
+Usage: gh-review-notify [--status | --test | --help]
+
+With no option it checks GitHub once and shows each new review and comment.
+The launchd agent runs it every few minutes, so you rarely need to.
+
+  --status  the agent, your account, the last run and the settings
+  --test    sends a test notification
+  --help    this text
+exit 0
+-- gh calls
+-- notifications
+== unknown option
+Unknown option: --stauts
+Usage: gh-review-notify [--status | --test | --help]
+
+With no option it checks GitHub once and shows each new review and comment.
+The launchd agent runs it every few minutes, so you rarely need to.
+
+  --status  the agent, your account, the last run and the settings
+  --test    sends a test notification
+  --help    this text
+exit 2
+-- gh calls
+-- notifications
 == bad setting, GH_REVIEW_NOTIFY_DAYS=3d
 2025-10-29 12:00:00 GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3.
 exit 1

@@ -27,6 +27,16 @@ main() {
       print_status
       exit 0
       ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    "") ;;
+    *)
+      echo "Unknown option: $1" >&2
+      print_usage >&2
+      exit 2
+      ;;
   esac
 
   trim_log
@@ -73,6 +83,19 @@ main() {
 fail() { # message
   echo "$(date '+%F %T') $1" >&2
   exit 1
+}
+
+print_usage() {
+  cat << TEXT
+Usage: gh-review-notify [--status | --test | --help]
+
+With no option it checks GitHub once and shows each new review and comment.
+The launchd agent runs it every few minutes, so you rarely need to.
+
+  --status  the agent, your account, the last run and the settings
+  --test    sends a test notification
+  --help    this text
+TEXT
 }
 
 send_test_notification() {

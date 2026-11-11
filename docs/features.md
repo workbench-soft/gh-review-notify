@@ -51,6 +51,8 @@ Spec: [review-notifications](../specs/review-notifications.md).
 - **`--status`** prints the agent state, the account, the last run, the
   settings and the log path.
 - **`--test`** sends a test notification.
+- **`--help`** lists the options. An unknown option prints the list and
+  stops before any GitHub call.
 
 Spec: [review-notifications](../specs/review-notifications.md).
 

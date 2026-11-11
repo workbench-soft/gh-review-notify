@@ -60,6 +60,10 @@ run() { # fixture set, arguments
   echo "-- log lines left: $(wc -l < "$HOME/Library/Logs/gh-review-notify.log" | tr -d ' '), last: $(tail -n 1 "$HOME/Library/Logs/gh-review-notify.log" | cut -d' ' -f1)"
   echo "== --test"
   run next --test
+  echo "== --help"
+  run next --help
+  echo "== unknown option"
+  run next --stauts
   echo "== bad setting, GH_REVIEW_NOTIFY_DAYS=3d"
   GH_REVIEW_NOTIFY_DAYS=3d run next
   echo "== bad setting, GH_REVIEW_NOTIFY_BOTS=yes"

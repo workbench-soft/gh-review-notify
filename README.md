@@ -111,6 +111,7 @@ gh api -H 'Accept: application/vnd.github.raw' repos/workbench-soft/gh-review-no
 ```sh
 gh-review-notify --status   # agent, account, last run, settings
 gh-review-notify --test     # checks the macOS side only
+gh-review-notify --help     # lists the options
 tail ~/Library/Logs/gh-review-notify.log
 ```
 
