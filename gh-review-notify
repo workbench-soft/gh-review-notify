@@ -164,13 +164,14 @@ request_scope() { # PR url; prints personal or team
 }
 
 # Reads the reviews and comments of each PR whose updatedAt moved since the last run.
+# A seed reads them all, since a PR it skips would pop up its past events later.
 collect_pr_events() {
   local url title updated pr_author fetched
   sort -t$'\t' -k1,1 -u "$work_dir/involved.tsv" "$work_dir/asked-me.tsv" > "$work_dir/watched.tsv"
 
   : > "$work_dir/next-updated.tsv"
   while IFS=$'\t' read -r url title updated pr_author; do
-    if [ "$(cached_value "$updated_cache" "$url" 2)" = "$updated" ]; then
+    if [ "$seeding" = 0 ] && [ "$(cached_value "$updated_cache" "$url" 2)" = "$updated" ]; then
       printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
       continue
     fi

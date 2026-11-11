@@ -45,6 +45,10 @@ run() { # fixture set, arguments
   echo "== first run"
   run seed
   cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"
+  # Without seen.txt the run seeds again, and reads every PR despite pr-updated.tsv.
+  rm "$XDG_CACHE_HOME/gh-review-notify/seen.txt"
+  echo "== first run again, seen.txt deleted"
+  run seed
   echo "== second run"
   run next
   echo "== third run, nothing new"
