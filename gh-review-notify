@@ -5,6 +5,8 @@
 set -uo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 export GH_PAGER=cat
+# The cache lists the URLs of private PRs, and a Mac home folder is open to other accounts.
+umask 077
 
 lookback_days=${GH_REVIEW_NOTIFY_DAYS:-3}
 show_bots=${GH_REVIEW_NOTIFY_BOTS:-0}

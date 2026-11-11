@@ -56,7 +56,8 @@ sequenceDiagram
 
 ## Data
 
-The script keeps its state in `~/.cache/gh-review-notify`:
+The script keeps its state in `~/.cache/gh-review-notify`, readable by your
+account only, since it lists the URLs of private PRs:
 
 | File                  | Holds                                              |
 | --------------------- | -------------------------------------------------- |

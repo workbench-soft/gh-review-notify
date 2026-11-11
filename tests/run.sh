@@ -44,6 +44,7 @@ run() { # fixture set, arguments
   run fetch-fails
   echo "== first run"
   run seed
+  echo "-- umask of the run: $(cat "$GH_CALLS.umask")"
   cp -R "$XDG_CACHE_HOME" "$work/seeded-cache"
   # Without seen.txt the run seeds again, and reads every PR despite pr-updated.tsv.
   rm "$XDG_CACHE_HOME/gh-review-notify/seen.txt"
