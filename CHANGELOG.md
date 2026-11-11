@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Older runs stop on GitHub** a newer push to `main` cancels the Checks and the release build of the older commit through `concurrency`, with the local-ci page off too.
+
 - **CI** the release notes test sets its own `GITHUB_REPOSITORY`, so it passes on the runner, where GitHub sets one.
 
 - **Reseed** a run without `seen.txt` reads every PR again, so old events of a PR stay quiet when it changes later. Before, they popped up as new.
