@@ -89,7 +89,7 @@ print_status() {
   echo "agent:    ${agent:-not loaded, run install.sh}"
   echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
-  echo "seen:     $( (wc -l < "$seen_file" 2> /dev/null || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
+  echo "seen:     $( (wc -l 2> /dev/null < "$seen_file" || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
   echo "log:      $log_file"
 }
 
