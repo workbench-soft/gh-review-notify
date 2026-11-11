@@ -1,7 +1,7 @@
 #!/bin/sh
 # Prints Markdown release notes for the commits after the release before <ref>.
-#   release-notes.sh v0.0.109          notes for HEAD, about to be tagged v0.0.109
-#   release-notes.sh v0.0.108 v0.0.108 notes for a tag that already exists
+#   release-notes.sh v2026.10.25.2               notes for HEAD, about to be tagged v2026.10.25.2
+#   release-notes.sh v2026.10.25.1 v2026.10.25.1 notes for a tag that already exists
 set -eu
 
 tag=$1
