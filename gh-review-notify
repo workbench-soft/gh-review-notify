@@ -74,7 +74,8 @@ main() {
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
 
-  tail -n 3000 "$seen_file" > "$seen_file.trim" && mv "$seen_file.trim" "$seen_file"
+  # Rewrites the file only once it outgrows 3000 keys, about 250 KB, not on every run.
+  [ "$(wc -l < "$seen_file")" -gt 3000 ] && tail -n 3000 "$seen_file" > "$seen_file.trim" && mv "$seen_file.trim" "$seen_file"
   [ "$seeding" = 1 ] && echo "Seeded $(wc -l < "$seen_file" | tr -d ' ') past events. Only new ones will pop up."
   finished=1
   exit 0
