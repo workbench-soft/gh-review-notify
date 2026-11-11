@@ -135,6 +135,7 @@ It works with github.com only. Enterprise hosts are out.
 mise run lint                # shellcheck, shfmt, markdownlint and oxfmt
 mise run test                # compares with tests/expected.txt
 bash tests/run.sh --update   # rewrites tests/expected.txt after a change you meant
+git config core.hooksPath .githooks   # once per clone: lint runs before each push
 ```
 
 CI runs both on a GitHub macOS runner. Each push to `main` that passes them gets
