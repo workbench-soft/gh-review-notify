@@ -147,7 +147,21 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 -group https://github.com/acme/api/pull/1#discussion_r13
 -sound Glass
 
--title 💬 6 new comments · api#2
+-title 💬 Comment · api#1
+-subtitle dave · your PR · 10:21
+-message src/users.ts: Point 1
+-open https://github.com/acme/api/pull/1#discussion_r14
+-group https://github.com/acme/api/pull/1#discussion_r14
+-sound Glass
+
+-title 💬 Comment · api#1
+-subtitle dave · your PR · 10:22
+-message src/users.ts: Point 2
+-open https://github.com/acme/api/pull/1#discussion_r15
+-group https://github.com/acme/api/pull/1#discussion_r15
+-sound Glass
+
+-title 💬 5 new comments · api#2
 -subtitle frank, grace · erin's PR · 10:59
 -message src/search.ts: Use a Map here
 -open https://github.com/acme/api/pull/2
@@ -239,7 +253,9 @@ display notification "LGTM" with title "✅ Approved · api#1" subtitle "alice �
 display notification "Needs tests" with title "⛔️ Changes requested · api#2" subtitle "frank · erin's PR · 10:40"
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
 display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
-display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+display notification "src/users.ts: Point 1" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:21"
+display notification "src/users.ts: Point 2" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:22"
+display notification "src/search.ts: Use a Map here" with title "💬 5 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
 == second run, GH_REVIEW_NOTIFY_BOTS=1
 exit 0
 -- gh calls
@@ -267,7 +283,9 @@ display notification "Nit" with title "📝 Review · api#1" subtitle "coderabbi
 display notification "Needs tests" with title "⛔️ Changes requested · api#2" subtitle "frank · erin's PR · 10:40"
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
 display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
-display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+display notification "src/users.ts: Point 1" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:21"
+display notification "src/users.ts: Point 2" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:22"
+display notification "src/search.ts: Use a Map here" with title "💬 5 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
 == a run while another holds the lock
 exit 0
 -- gh calls
