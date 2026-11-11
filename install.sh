@@ -144,7 +144,8 @@ copy_script
 write_agent_plist
 
 echo "Reading your pull requests..."
-"$installed_script" || fail "The first run failed. See $log_file"
+# The agent isn't loaded yet, so the reason prints here and the log stays empty.
+"$installed_script" || fail "The first run failed. The reason is above."
 
 load_agent
 "$installed_script" --test
