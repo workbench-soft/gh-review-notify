@@ -112,7 +112,7 @@ print_status() {
   agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" {
     print ($1 == "-" ? "loaded, waiting for the next run" : "running now") ", last exit code " $2 }')
   echo "agent:    ${agent:-not loaded, run install.sh}"
-  echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
+  echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'none, gh is offline or logged out')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
   echo "seen:     $( (wc -l 2> /dev/null < "$seen_file" || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
   echo "log:      $log_file"
