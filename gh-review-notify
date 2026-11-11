@@ -5,6 +5,8 @@
 set -uo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 export GH_PAGER=cat
+# The cache lists the URLs of private PRs, and a Mac home folder is open to other accounts.
+umask 077
 
 lookback_days=${GH_REVIEW_NOTIFY_DAYS:-3}
 show_bots=${GH_REVIEW_NOTIFY_BOTS:-0}
@@ -13,6 +15,7 @@ seen_file="$cache_dir/seen.txt"
 updated_cache="$cache_dir/pr-updated.tsv"
 requests_cache="$cache_dir/review-requests.tsv"
 lock_dir="$cache_dir/lock"
+log_file="$HOME/Library/Logs/gh-review-notify.log"
 
 main() {
   case "${1:-}" in
@@ -24,21 +27,28 @@ main() {
       print_status
       exit 0
       ;;
+    -h | --help)
+      print_usage
+      exit 0
+      ;;
+    "") ;;
+    *)
+      echo "Unknown option: $1" >&2
+      print_usage >&2
+      exit 2
+      ;;
   esac
 
-  command -v gh > /dev/null || {
-    echo "gh is not installed" >&2
-    exit 1
-  }
-  command -v jq > /dev/null || {
-    echo "jq is not installed" >&2
-    exit 1
-  }
+  trim_log
+  # launchd gives the agent the PATH above, not the one of your shell.
+  command -v gh > /dev/null || fail "gh is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install gh"
+  command -v jq > /dev/null || fail "jq is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install jq"
   # A bad value would reach date and gh, and the run would blame GitHub.
-  case "$lookback_days" in '' | *[!0-9]* | 0) fail_setting "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
-  case "$show_bots" in 0 | 1) ;; *) fail_setting "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
+  case "$lookback_days" in '' | *[!0-9]* | 0) fail "GH_REVIEW_NOTIFY_DAYS takes whole days, such as 3." ;; esac
+  case "$show_bots" in 0 | 1) ;; *) fail "GH_REVIEW_NOTIFY_BOTS takes 0 or 1." ;; esac
 
-  mkdir -p "$cache_dir"
+  # umask covers new files only, so an older install gets its folder closed here.
+  mkdir -p "$cache_dir" && chmod 700 "$cache_dir"
   take_lock || exit 0
   work_dir=$(mktemp -d)
   seeding=0
@@ -53,31 +63,42 @@ main() {
   : > "$events_file"
   touch "$updated_cache" "$requests_cache"
 
-  my_login=$(gh api user --jq .login) || {
-    echo "Could not read your GitHub login. Check the network, or run gh auth login." >&2
-    exit 1
-  }
+  my_login=$(gh api user --jq .login) || fail "Could not read your GitHub login. Check the network, or run gh auth login."
   since_time=$(date -u -v-"${lookback_days}"d +%Y-%m-%dT%H:%M:%SZ)
   since_date=$(date -u -v-"${lookback_days}"d +%Y-%m-%d)
 
   # A failed search would read as "no PRs" and wipe the caches. On the first run
   # any failed call would leave events unseen, and the next run would show them.
   if ! list_involved_prs || ! collect_review_requests || ! collect_pr_events; then
-    echo "A GitHub call failed. The next run tries again." >&2
-    exit 1
+    fail "A GitHub call failed. The next run tries again."
   fi
   keep_unseen_events
   [ "$seeding" = 0 ] && deliver_notifications
 
-  tail -n 3000 "$seen_file" > "$seen_file.trim" && mv "$seen_file.trim" "$seen_file"
+  # Rewrites the file only once it outgrows 3000 keys, about 250 KB, not on every run.
+  [ "$(wc -l < "$seen_file")" -gt 3000 ] && tail -n 3000 "$seen_file" > "$seen_file.trim" && mv "$seen_file.trim" "$seen_file"
   [ "$seeding" = 1 ] && echo "Seeded $(wc -l < "$seen_file" | tr -d ' ') past events. Only new ones will pop up."
   finished=1
   exit 0
 }
 
-fail_setting() { # message
-  echo "$1" >&2
+# The log gets a line each failed run, and the time tells when the trouble began.
+fail() { # message
+  echo "$(date '+%F %T') $1" >&2
   exit 1
+}
+
+print_usage() {
+  cat << TEXT
+Usage: gh-review-notify [--status | --test | --help]
+
+With no option it checks GitHub once and shows each new review and comment.
+The launchd agent runs it every few minutes, so you rarely need to.
+
+  --status  the agent, your account, the last run and the settings
+  --test    sends a test notification
+  --help    this text
+TEXT
 }
 
 send_test_notification() {
@@ -92,10 +113,22 @@ print_status() {
   agent=$(launchctl list 2> /dev/null | awk '$3 == "io.github.gh-review-notify" {
     print ($1 == "-" ? "loaded, waiting for the next run" : "running now") ", last exit code " $2 }')
   echo "agent:    ${agent:-not loaded, run install.sh}"
-  echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'gh is not logged in')"
+  echo "account:  $(gh api user --jq .login 2> /dev/null || echo 'none, gh is offline or logged out')"
   echo "last run: $(stat -f %Sm "$updated_cache" 2> /dev/null || echo never)"
-  echo "seen:     $( (wc -l < "$seen_file" 2> /dev/null || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
-  echo "log:      $HOME/Library/Logs/gh-review-notify.log"
+  echo "seen:     $( (wc -l 2> /dev/null < "$seen_file" || echo 0) | tr -d ' ') events, looking $lookback_days days back, bots=$show_bots"
+  echo "log:      $log_file"
+}
+
+# launchd appends each run's output to the log, and a Mac offline for weeks adds
+# 2 lines every 3 minutes. Past 1 MB the log keeps its last 1000 lines. It is
+# rewritten in place, since launchd holds it open for appending.
+trim_log() {
+  [ -f "$log_file" ] && [ "$(wc -c < "$log_file" | tr -d ' ')" -gt 1000000 ] || return 0
+  # It runs before the lock, so each run takes its own temp file.
+  local trim
+  trim=$(mktemp) || return 0
+  tail -n 1000 "$log_file" > "$trim" && cat "$trim" > "$log_file"
+  rm -f "$trim"
 }
 
 # A manual run and the agent take turns, so the same comment can't pop up twice.
@@ -124,14 +157,16 @@ list_involved_prs() {
 }
 
 search_open_prs() {
-  gh search prs "$@" --state open --updated ">=$since_date" --limit 100 --json url,title,updatedAt,author
+  gh search prs "$@" --state open --updated ">=$since_date" --sort updated --limit 100 --json url,title,updatedAt,author
 }
 
+# Searches keep 100 hits, newest first: best match, the default, could drop
+# a fresh request once your teams have more than 100 open.
 # GitHub search also lists a review asked of a team you belong to. Each hit is
 # checked for your own login, and the answer holds until the PR changes again.
 collect_review_requests() {
   local url title author updated scope
-  gh search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq \
+  gh search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq \
     '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" || return 1
 
   : > "$work_dir/asked-me.tsv"
@@ -164,13 +199,14 @@ request_scope() { # PR url; prints personal or team
 }
 
 # Reads the reviews and comments of each PR whose updatedAt moved since the last run.
+# A seed reads them all, since a PR it skips would pop up its past events later.
 collect_pr_events() {
   local url title updated pr_author fetched
   sort -t$'\t' -k1,1 -u "$work_dir/involved.tsv" "$work_dir/asked-me.tsv" > "$work_dir/watched.tsv"
 
   : > "$work_dir/next-updated.tsv"
   while IFS=$'\t' read -r url title updated pr_author; do
-    if [ "$(cached_value "$updated_cache" "$url" 2)" = "$updated" ]; then
+    if [ "$seeding" = 0 ] && [ "$(cached_value "$updated_cache" "$url" 2)" = "$updated" ]; then
       printf '%s\t%s\n' "$url" "$updated" >> "$work_dir/next-updated.tsv"
       continue
     fi

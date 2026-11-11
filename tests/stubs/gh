@@ -2,6 +2,7 @@
 # Stands in for the GitHub CLI. Each call is logged, and the answer comes from a
 # JSON file in $FIXTURES named after the API path or the search flag.
 printf '%s\n' "$*" >> "$GH_CALLS"
+umask > "$GH_CALLS.umask"
 
 filter=""
 words=()

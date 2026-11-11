@@ -6,7 +6,7 @@ A notification shows each review and comment another person leaves on your
 open PRs. It appears in macOS Notification Center within 3 minutes.
 
 - **Where** Notification Center. A click opens the comment.
-- **Limits** github.com only. Open PRs updated in the last 3 days, 100 per
+- **Limits** github.com only. Open PRs updated in the last 3 days, the newest 100 per
   search.
 
 Spec: [review-notifications](../specs/review-notifications.md).
@@ -51,6 +51,8 @@ Spec: [review-notifications](../specs/review-notifications.md).
 - **`--status`** prints the agent state, the account, the last run, the
   settings and the log path.
 - **`--test`** sends a test notification.
+- **`--help`** lists the options. An unknown option prints the list and
+  stops before any GitHub call.
 
 Spec: [review-notifications](../specs/review-notifications.md).
 

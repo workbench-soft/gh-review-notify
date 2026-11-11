@@ -68,7 +68,8 @@ install fetches the files through `gh`.
 ```
 
 1. Homebrew installs `jq` and `terminal-notifier` if they are missing.
-2. The script goes into `~/.local/bin`.
+2. The script goes into `~/.local/bin`. Stock macOS leaves that folder off
+   `PATH`, and then the install prints the line to add to `~/.zshrc`.
 3. The agent loads, and it starts again at each login.
 
 To read the code before you run it:
@@ -111,12 +112,14 @@ gh api -H 'Accept: application/vnd.github.raw' repos/workbench-soft/gh-review-no
 ```sh
 gh-review-notify --status   # agent, account, last run, settings
 gh-review-notify --test     # checks the macOS side only
+gh-review-notify --help     # lists the options
 tail ~/Library/Logs/gh-review-notify.log
 ```
 
 "Could not read your GitHub login" in the log means the Mac was offline or
 `gh` lost its login. "A GitHub call failed" means a call hit an error or the rate
-limit, and the next run tries again.
+limit, and the next run tries again. Each error line starts with its time, and
+the log keeps its last 1000 lines once it passes 1 MB.
 
 A user agent runs while you are logged in, and it sleeps with the Mac. On wake
 it runs once and catches up.
@@ -126,13 +129,14 @@ It works with github.com only. Enterprise hosts are out.
 ## Development
 
 `tests/run.sh` runs the script against canned GitHub answers in
-`tests/fixtures`, and feeds `install.sh` and the script bad settings. Stubs stand in for `gh`, the macOS `date` and
+`tests/fixtures`, feeds `install.sh` and the script bad settings, and runs the release scripts on a scratch repo. Stubs stand in for `gh`, the macOS `date` and
 `terminal-notifier`, so it runs on Windows too. mise pins `jq` and the linters.
 
 ```sh
 mise run lint                # shellcheck, shfmt, markdownlint and oxfmt
 mise run test                # compares with tests/expected.txt
 bash tests/run.sh --update   # rewrites tests/expected.txt after a change you meant
+git config core.hooksPath .githooks   # once per clone: lint runs before each push
 ```
 
 CI runs both on a GitHub macOS runner. Each push to `main` that passes them gets

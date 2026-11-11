@@ -8,10 +8,12 @@ shfmt = "3.14.1"
 
 [tasks.lint]
 description = "Lint and format check the scripts and the Markdown"
+# shfmt finds each shell script by its extension or shebang, so a new one can't miss the lint.
+shell = "bash -c"
 run = [
   "markdownlint-cli2",
-  "shellcheck -S style gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
-  "shfmt -i 2 -ci -sr -d gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
+  "shellcheck -S style $(shfmt -f .)",
+  "shfmt -i 2 -ci -sr -d .",
   "oxfmt --check",
 ]
 
@@ -21,7 +23,4 @@ run = "bash tests/run.sh"
 
 [tasks.format]
 description = "Format the scripts and the Markdown"
-run = [
-  "shfmt -i 2 -ci -sr -w gh-review-notify install.sh uninstall.sh tests/run.sh tests/stubs/date tests/stubs/gh tests/stubs/jq tests/stubs/osascript tests/stubs/terminal-notifier .github/scripts/next-version.sh .github/scripts/release-notes.sh",
-  "oxfmt",
-]
+run = ["shfmt -i 2 -ci -sr -w .", "oxfmt"]

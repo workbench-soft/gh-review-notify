@@ -32,8 +32,8 @@ flowchart LR
    you, and drops the team ones. A failed lookup stays out of the cache, so
    the next run asks again.
 4. **Read events** `collect_pr_events` reads reviews and comments of each PR
-   whose `updatedAt` moved. A conversation comment counts when it was written
-   in the last 3 days, whatever its last edit.
+   whose `updatedAt` moved, or every PR on a seed. A conversation comment
+   counts when it was written in the last 3 days, whatever its last edit.
 5. **Drop seen events** `keep_unseen_events` checks each event key against
    `seen.txt`.
 6. **Notify** `deliver_notifications` shows approvals alone and folds more
@@ -56,7 +56,8 @@ sequenceDiagram
 
 ## Data
 
-The script keeps its state in `~/.cache/gh-review-notify`:
+The script keeps its state in `~/.cache/gh-review-notify`, readable by your
+account only, since it lists the URLs of private PRs:
 
 | File                  | Holds                                              |
 | --------------------- | -------------------------------------------------- |

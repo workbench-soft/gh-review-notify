@@ -14,6 +14,8 @@ bin_dir="$HOME/.local/bin"
 installed_script="$bin_dir/gh-review-notify"
 agent_plist="$HOME/Library/LaunchAgents/$agent_label.plist"
 log_file="$HOME/Library/Logs/gh-review-notify.log"
+# The PATH line of gh-review-notify. launchd gives the agent no shell PATH.
+agent_path="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
 fail() {
   echo "$1" >&2
@@ -34,13 +36,21 @@ whole_number() { # value
 
 check_requirements() {
   [ "$(uname)" = "Darwin" ] || fail "macOS only."
-  command -v gh > /dev/null || fail "Install the GitHub CLI first: brew install gh"
+  on_agent_path gh || fail "Install the GitHub CLI with Homebrew first, so the agent finds it: brew install gh"
   gh auth status > /dev/null 2>&1 || fail "Log in first: gh auth login"
   command -v brew > /dev/null || fail "Homebrew is missing: see https://brew.sh"
 }
 
+# A tool from mise or ~/bin works in a shell, but the agent can't see it.
+on_agent_path() { # command name
+  (
+    PATH=$agent_path
+    command -v "$1" > /dev/null
+  )
+}
+
 brew_install_missing() { # command name
-  command -v "$1" > /dev/null && return
+  on_agent_path "$1" && return
   echo "Installing $1..."
   brew install "$1"
 }
@@ -73,6 +83,7 @@ copy_script() {
   mv "$new_script" "$installed_script"
 }
 
+# ProcessType Background lets macOS run the poll at low CPU and disk priority.
 write_agent_plist() {
   mkdir -p "$HOME/Library/LaunchAgents"
   cat > "$agent_plist" << PLIST
@@ -88,6 +99,8 @@ write_agent_plist() {
 	</array>
 	<key>StartInterval</key>
 	<integer>$poll_seconds</integer>
+	<key>ProcessType</key>
+	<string>Background</string>
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>GH_REVIEW_NOTIFY_DAYS</key>
@@ -111,7 +124,15 @@ load_agent() {
   launchctl bootstrap "gui/$(id -u)" "$agent_plist"
 }
 
+# Stock macOS leaves ~/.local/bin off PATH, and then only the full path runs the script.
 print_summary() {
+  local run=gh-review-notify path_hint=""
+  if [ "$(command -v gh-review-notify 2> /dev/null)" != "$installed_script" ]; then
+    run=$installed_script
+    path_hint="
+To run it by name, add this line to ~/.zshrc and open a new terminal:
+  export PATH=\"\$HOME/.local/bin:\$PATH\""
+  fi
   cat << TEXT
 
 Installed.
@@ -121,7 +142,8 @@ Installed.
 
 A test notification should be on screen. If it is missing, switch on
 System Settings > Notifications > terminal-notifier, then run:
-  gh-review-notify --test
+  $run --test
+$path_hint
 TEXT
 }
 
@@ -134,7 +156,8 @@ copy_script
 write_agent_plist
 
 echo "Reading your pull requests..."
-"$installed_script" || fail "The first run failed. See $log_file"
+# The agent isn't loaded yet, so the reason prints here and the log stays empty.
+"$installed_script" || fail "The first run failed. The reason is above."
 
 load_agent
 "$installed_script" --test
