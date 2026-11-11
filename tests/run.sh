@@ -90,6 +90,23 @@ run() { # fixture set, arguments
     echo "== install.sh, $setting"
     env -i HOME="$work/home" PATH=/nonexistent "$setting" "$BASH" "$tests/../install.sh" || echo "exit $?"
   done
+
+  # The release scripts read the tags and commits of a scratch repo with fixed
+  # dates, so the short hashes stay the same. The date stub sets the day.
+  export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com
+  export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com GIT_AUTHOR_DATE=@$NOW GIT_COMMITTER_DATE=@$NOW
+  git init -q "$work/repo"
+  (
+    cd "$work/repo"
+    git commit -q --allow-empty -m "First release"
+    git tag v2025.10.29.1
+    git commit -q --allow-empty -m "fix: keep the caches" -m "Co-Authored-By: someone <someone@example.com>"
+    git commit -q --allow-empty -m "Show the PR title" -m "The reason." -m "Details for developers."
+    echo "== next-version.sh"
+    PATH="$STUBS:$PATH" sh "$tests/../.github/scripts/next-version.sh"
+    echo "== release-notes.sh"
+    sh "$tests/../.github/scripts/release-notes.sh" v2025.10.29.2
+  )
 } > "$work/actual.txt" 2>&1
 
 if [ "${1:-}" = "--update" ]; then

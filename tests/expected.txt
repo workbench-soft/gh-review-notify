@@ -254,3 +254,16 @@ exit 1
 == install.sh, GH_REVIEW_NOTIFY_BOTS=yes
 GH_REVIEW_NOTIFY_BOTS takes 0 or 1.
 exit 1
+== next-version.sh
+2025.10.29.2
+== release-notes.sh
+## Fixes
+
+- Keep the caches (0c565ef)
+
+<details><summary>Other changes</summary>
+
+- Show the PR title
+
+</details>
+

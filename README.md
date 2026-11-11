@@ -128,7 +128,7 @@ It works with github.com only. Enterprise hosts are out.
 ## Development
 
 `tests/run.sh` runs the script against canned GitHub answers in
-`tests/fixtures`, and feeds `install.sh` and the script bad settings. Stubs stand in for `gh`, the macOS `date` and
+`tests/fixtures`, feeds `install.sh` and the script bad settings, and runs the release scripts on a scratch repo. Stubs stand in for `gh`, the macOS `date` and
 `terminal-notifier`, so it runs on Windows too. mise pins `jq` and the linters.
 
 ```sh
