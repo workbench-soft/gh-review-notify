@@ -309,7 +309,7 @@ exit 1
 == release-notes.sh
 ## Fixes
 
-- Keep the caches (0c565ef)
+- Keep the caches (47cba01)
 
 <details><summary>Other changes</summary>
 

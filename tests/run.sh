@@ -106,7 +106,7 @@ run() { # fixture set, arguments
   # The release scripts read the tags and commits of a scratch repo with fixed
   # dates, so the short hashes stay the same. The date stub sets the day.
   export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com
-  export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com GIT_AUTHOR_DATE=@$NOW GIT_COMMITTER_DATE=@$NOW
+  export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com GIT_AUTHOR_DATE="@$NOW +0000" GIT_COMMITTER_DATE="@$NOW +0000"
   git init -q "$work/repo"
   (
     cd "$work/repo"
