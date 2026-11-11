@@ -12,7 +12,7 @@
 
 ## app-audit
 
-- [ ] Run `./install.sh` again on the Mac, then check `gh-review-notify --status`, `gh-review-notify --help` and the install summary. The 2026-11-11 audit ran on Windows with stubs only: `launchctl`, `plutil`, `osascript` and BSD `date` didn't run (PR #7, #14 and the 2026-11-11 audit PR).
+- [ ] Run `./install.sh` again on the Mac, then check `gh-review-notify --status`, `gh-review-notify --help` and the install summary. The 2026-11-11 audit ran on Windows with stubs only: `launchctl`, `plutil`, `osascript` and BSD `date` didn't run (PR #7, #14 and #20).
 - [ ] On the Mac, check that the cache folder shows `drwx------` after one run: `ls -ld ~/.cache/gh-review-notify`.
 - Left: a re-requested review stays silent, since `#review-requested` is already in `seen.txt`. The fix needs the PR timeline API and a new event key, effort M.
 - Left: gh calls have no timeout. Stock macOS has no `timeout` command, and launchd doesn't start a second run while one runs.
