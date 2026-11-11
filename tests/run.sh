@@ -117,7 +117,7 @@ run() { # fixture set, arguments
     echo "== next-version.sh"
     PATH="$STUBS:$PATH" sh "$tests/../.github/scripts/next-version.sh"
     echo "== release-notes.sh"
-    sh "$tests/../.github/scripts/release-notes.sh" v2025.10.29.2
+    GITHUB_REPOSITORY=acme/api sh "$tests/../.github/scripts/release-notes.sh" v2025.10.29.2
   )
 } > "$work/actual.txt" 2>&1
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **CI** the release notes test sets its own `GITHUB_REPOSITORY`, so it passes on the runner, where GitHub sets one.
+
 - **Reseed** a run without `seen.txt` reads every PR again, so old events of a PR stay quiet when it changes later. Before, they popped up as new.
 - **Private cache** `~/.cache/gh-review-notify` is readable by your account only, the folder of an older install too. Before, other Mac accounts could list your private PR URLs.
 - **Log** each error line starts with its time, and the log keeps its last 1000 lines once it passes 1 MB.
