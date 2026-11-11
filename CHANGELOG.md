@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Reseed** a run without `seen.txt` reads every PR again, so old events of a PR stay quiet when it changes later. Before, they popped up as new.
+- **Private cache** `~/.cache/gh-review-notify` is readable by your account only, the folder of an older install too. Before, other Mac accounts could list your private PR URLs.
+- **Log** each error line starts with its time, and the log keeps its last 1000 lines once it passes 1 MB.
+- **Help** `--help` lists the options, and an unknown option stops with the list. Before, both ran a full check of GitHub.
+- **Missing tools** the install checks gh, jq and terminal-notifier in the folders the agent searches, and the run names those folders when gh or jq is missing. Before, a jq from mise passed the install and every run failed.
+- **Newest first** each search keeps the 100 most recently updated PRs, so a fresh review request isn't cut past 100 open ones.
+- **Battery** the agent runs as a macOS background job, and `seen.txt` is rewritten only once it passes 3000 keys.
+- **Messages** `--status` says "offline or logged out" when the account check fails, a failed first install run points at the message on screen, and the install summary gives the full path when `~/.local/bin` is off PATH.
+- **CI** lint finds each shell script through `shfmt -f`, the pre-push hook included. Dependabot keeps the action pins current, mise-action is 5.2.7, release notes drop `Co-Authored-By` trailers, and tests cover the bots setting, the lock and the comment fold.
+
 - **Lint before the push** a pre-push hook runs `mise run lint`, so a lint or format error stays on the PC instead of failing Checks on `main`.
 
 - **Docs** the README and the release spec say the script checks its settings at each run, and that Release starts on `workflow_run` of shellcheck.
