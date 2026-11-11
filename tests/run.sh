@@ -78,6 +78,18 @@ run() { # fixture set, arguments
   echo "== second run, osascript"
   STUBS="$work/osascript-stubs" run next
 
+  # With GH_REVIEW_NOTIFY_BOTS=1 the review by coderabbit[bot] shows too.
+  rm -rf "$XDG_CACHE_HOME"
+  cp -R "$work/seeded-cache" "$XDG_CACHE_HOME"
+  echo "== second run, GH_REVIEW_NOTIFY_BOTS=1"
+  GH_REVIEW_NOTIFY_BOTS=1 STUBS="$work/osascript-stubs" run next
+
+  # A run that finds the lock of another run stops quietly and leaves it be.
+  mkdir "$XDG_CACHE_HOME/gh-review-notify/lock"
+  echo "== a run while another holds the lock"
+  run next
+  rmdir "$XDG_CACHE_HOME/gh-review-notify/lock"
+
   # gh outside the Homebrew folders is missing for the agent, whatever the shell finds.
   mkdir "$work/no-gh-stubs"
   cp "$STUBS"/* "$work/no-gh-stubs/"

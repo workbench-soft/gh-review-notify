@@ -68,10 +68,10 @@ Seeded 3 past events. Only new ones will pop up.
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
@@ -240,6 +240,38 @@ display notification "Needs tests" with title "⛔️ Changes requested · api#2
 display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
 display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
 display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+== second run, GH_REVIEW_NOTIFY_BOTS=1
+exit 0
+-- gh calls
+api user --jq .login
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
+api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
+api --paginate repos/acme/api/pulls/1/reviews?per_page=100
+api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/reviews?per_page=100
+api --paginate repos/acme/api/issues/2/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/api/pulls/2/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/reviews?per_page=100
+api --paginate repos/acme/web/issues/6/comments?since=2025-10-26T12:00:00Z&per_page=100
+api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_page=100
+-- notifications
+display notification "Fix footer" with title "👀 Review requested · web#6" subtitle "ivy · ivy's PR · 10:00"
+display notification "Add users\\admins" with title "✅ Approved · api#1" subtitle "kim · your PR · 10:25"
+display notification "LGTM" with title "✅ Approved · api#1" subtitle "alice · your PR · 10:15"
+display notification "Nit" with title "📝 Review · api#1" subtitle "coderabbit[bot] · your PR · 10:18"
+display notification "Needs tests" with title "⛔️ Changes requested · api#2" subtitle "frank · erin's PR · 10:40"
+display notification "Looks good ship it now" with title "💬 Comment · api#1" subtitle "carol · your PR · Oct 28, 18:04"
+display notification "src/users.ts: Rename to \"users\\list\"" with title "💬 Comment · api#1" subtitle "dave · your PR · 10:20"
+display notification "src/search.ts: Use a Map here" with title "💬 6 new comments · api#2" subtitle "frank, grace · erin's PR · 10:59"
+== a run while another holds the lock
+exit 0
+-- gh calls
+-- notifications
 == gh missing
 2025-10-29 12:00:00 gh is not in /opt/homebrew/bin or /usr/local/bin, where the agent looks. Install it with: brew install gh
 exit 1
