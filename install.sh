@@ -14,6 +14,8 @@ bin_dir="$HOME/.local/bin"
 installed_script="$bin_dir/gh-review-notify"
 agent_plist="$HOME/Library/LaunchAgents/$agent_label.plist"
 log_file="$HOME/Library/Logs/gh-review-notify.log"
+# The PATH line of gh-review-notify. launchd gives the agent no shell PATH.
+agent_path="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
 fail() {
   echo "$1" >&2
@@ -34,13 +36,21 @@ whole_number() { # value
 
 check_requirements() {
   [ "$(uname)" = "Darwin" ] || fail "macOS only."
-  command -v gh > /dev/null || fail "Install the GitHub CLI first: brew install gh"
+  on_agent_path gh || fail "Install the GitHub CLI with Homebrew first, so the agent finds it: brew install gh"
   gh auth status > /dev/null 2>&1 || fail "Log in first: gh auth login"
   command -v brew > /dev/null || fail "Homebrew is missing: see https://brew.sh"
 }
 
+# A tool from mise or ~/bin works in a shell, but the agent can't see it.
+on_agent_path() { # command name
+  (
+    PATH=$agent_path
+    command -v "$1" > /dev/null
+  )
+}
+
 brew_install_missing() { # command name
-  command -v "$1" > /dev/null && return
+  on_agent_path "$1" && return
   echo "Installing $1..."
   brew install "$1"
 }
