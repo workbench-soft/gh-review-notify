@@ -68,7 +68,8 @@ install fetches the files through `gh`.
 ```
 
 1. Homebrew installs `jq` and `terminal-notifier` if they are missing.
-2. The script goes into `~/.local/bin`.
+2. The script goes into `~/.local/bin`. Stock macOS leaves that folder off
+   `PATH`, and then the install prints the line to add to `~/.zshrc`.
 3. The agent loads, and it starts again at each login.
 
 To read the code before you run it:

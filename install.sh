@@ -121,7 +121,15 @@ load_agent() {
   launchctl bootstrap "gui/$(id -u)" "$agent_plist"
 }
 
+# Stock macOS leaves ~/.local/bin off PATH, and then only the full path runs the script.
 print_summary() {
+  local run=gh-review-notify path_hint=""
+  if [ "$(command -v gh-review-notify 2> /dev/null)" != "$installed_script" ]; then
+    run=$installed_script
+    path_hint="
+To run it by name, add this line to ~/.zshrc and open a new terminal:
+  export PATH=\"\$HOME/.local/bin:\$PATH\""
+  fi
   cat << TEXT
 
 Installed.
@@ -131,7 +139,8 @@ Installed.
 
 A test notification should be on screen. If it is missing, switch on
 System Settings > Notifications > terminal-notifier, then run:
-  gh-review-notify --test
+  $run --test
+$path_hint
 TEXT
 }
 
