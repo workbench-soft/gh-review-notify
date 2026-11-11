@@ -83,6 +83,7 @@ copy_script() {
   mv "$new_script" "$installed_script"
 }
 
+# ProcessType Background lets macOS run the poll at low CPU and disk priority.
 write_agent_plist() {
   mkdir -p "$HOME/Library/LaunchAgents"
   cat > "$agent_plist" << PLIST
@@ -98,6 +99,8 @@ write_agent_plist() {
 	</array>
 	<key>StartInterval</key>
 	<integer>$poll_seconds</integer>
+	<key>ProcessType</key>
+	<string>Background</string>
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>GH_REVIEW_NOTIFY_DAYS</key>
