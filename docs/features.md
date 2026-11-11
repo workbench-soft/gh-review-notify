@@ -6,7 +6,7 @@ A notification shows each review and comment another person leaves on your
 open PRs. It appears in macOS Notification Center within 3 minutes.
 
 - **Where** Notification Center. A click opens the comment.
-- **Limits** github.com only. Open PRs updated in the last 3 days, 100 per
+- **Limits** github.com only. Open PRs updated in the last 3 days, the newest 100 per
   search.
 
 Spec: [review-notifications](../specs/review-notifications.md).

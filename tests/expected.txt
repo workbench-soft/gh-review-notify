@@ -11,18 +11,18 @@ HTTP 403: API rate limit exceeded
 exit 1
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
 -- notifications
 == first run, a reviewer lookup fails
 2025-10-29 12:00:00 A GitHub call failed. The next run tries again.
 exit 1
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
 -- notifications
 == first run, a review list fails
@@ -30,10 +30,10 @@ api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
 exit 1
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
 api --paginate repos/acme/api/issues/1/comments?since=2025-10-26T12:00:00Z&per_page=100
 api --paginate repos/acme/api/pulls/1/comments?since=2025-10-26T12:00:00Z&per_page=100
@@ -43,10 +43,10 @@ Seeded 3 past events. Only new ones will pop up.
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/3 --jq .requested_reviewers[].login
 api repos/acme/web/pulls/4 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
@@ -89,10 +89,10 @@ api --paginate repos/acme/web/pulls/3/comments?since=2025-10-26T12:00:00Z&per_pa
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
 api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100
@@ -158,10 +158,10 @@ api --paginate repos/acme/web/pulls/6/comments?since=2025-10-26T12:00:00Z&per_pa
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 -- notifications
 -- log lines left: 1000, last: 15000
@@ -217,10 +217,10 @@ exit 1
 exit 0
 -- gh calls
 api user --jq .login
-search prs --author @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --involves @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --reviewed-by @me --state open --updated >=2025-10-26 --limit 100 --json url,title,updatedAt,author
-search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
+search prs --author @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --involves @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --reviewed-by @me --state open --updated >=2025-10-26 --sort updated --limit 100 --json url,title,updatedAt,author
+search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq .[] | [.url, .title, .author.login, .updatedAt] | @tsv
 api repos/acme/web/pulls/6 --jq .requested_reviewers[].login
 api repos/acme/web/pulls/7 --jq .requested_reviewers[].login
 api --paginate repos/acme/api/pulls/1/reviews?per_page=100

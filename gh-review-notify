@@ -152,14 +152,16 @@ list_involved_prs() {
 }
 
 search_open_prs() {
-  gh search prs "$@" --state open --updated ">=$since_date" --limit 100 --json url,title,updatedAt,author
+  gh search prs "$@" --state open --updated ">=$since_date" --sort updated --limit 100 --json url,title,updatedAt,author
 }
 
+# Searches keep 100 hits, newest first: best match, the default, could drop
+# a fresh request once your teams have more than 100 open.
 # GitHub search also lists a review asked of a team you belong to. Each hit is
 # checked for your own login, and the answer holds until the PR changes again.
 collect_review_requests() {
   local url title author updated scope
-  gh search prs --review-requested @me --state open --limit 100 --json url,title,author,updatedAt --jq \
+  gh search prs --review-requested @me --state open --sort updated --limit 100 --json url,title,author,updatedAt --jq \
     '.[] | [.url, .title, .author.login, .updatedAt] | @tsv' > "$work_dir/request-hits.tsv" || return 1
 
   : > "$work_dir/asked-me.tsv"
