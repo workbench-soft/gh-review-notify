@@ -124,8 +124,11 @@ print_status() {
 # rewritten in place, since launchd holds it open for appending.
 trim_log() {
   [ -f "$log_file" ] && [ "$(wc -c < "$log_file" | tr -d ' ')" -gt 1000000 ] || return 0
-  tail -n 1000 "$log_file" > "$log_file.trim" && cat "$log_file.trim" > "$log_file"
-  rm -f "$log_file.trim"
+  # It runs before the lock, so each run takes its own temp file.
+  local trim
+  trim=$(mktemp) || return 0
+  tail -n 1000 "$log_file" > "$trim" && cat "$trim" > "$log_file"
+  rm -f "$trim"
 }
 
 # A manual run and the agent take turns, so the same comment can't pop up twice.
