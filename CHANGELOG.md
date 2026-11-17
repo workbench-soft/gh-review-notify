@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **No release for docs** Release runs the shared `affected` step of `workbench-soft/ci` with `since: release`, so a push that changed only Markdown or `docs/` since the last tag cuts no release. Proof with `affected.ts --since release`: code commit `a55f8ab` gives `run=true`, docs commit `fcfc624` gives `run=false`.
 - **Older runs stop on GitHub** a newer push to `main` cancels the Checks and the release build of the older commit through `concurrency`, with the local-ci page off too.
 
 - **CI** the release notes test sets its own `GITHUB_REPOSITORY`, so it passes on the runner, where GitHub sets one.
